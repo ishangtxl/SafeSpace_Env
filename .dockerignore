@@ -1,0 +1,12 @@
+.coverage
+.pytest_cache/
+.review-venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+.DS_Store
+openenv_safespace.egg-info/

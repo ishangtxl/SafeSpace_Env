@@ -1,0 +1,43 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openenv-safespace"
+version = "0.2.1"
+description = "SafeSpace - Content moderation RL environment with multi-step investigation and 4-component reward"
+requires-python = ">=3.10"
+dependencies = [
+    # Core OpenEnv runtime (provides FastAPI server + HTTP client types)
+    # install from github
+    # "openenv-core[core] @ git+https://github.com/meta-pytorch/OpenEnv.git",
+    "openenv-core[core]>=0.2.3,<0.3",
+    # OpenAI client for inference script (MANDATORY for submission)
+    "openai>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
+
+[project.scripts]
+# Server entry point - enables running via: uv run --project . server
+# or: python -m content_moderation_env.server.app
+server = "content_moderation_env.server.app:main"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["content_moderation_env", "content_moderation_env.server"]
+package-dir = { "content_moderation_env" = ".", "content_moderation_env.server" = "server" }
+
+[tool.setuptools.package-data]
+content_moderation_env = ["openenv.yaml"]
+"content_moderation_env.server" = ["data/*.json"]

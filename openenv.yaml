@@ -1,0 +1,30 @@
+spec_version: 1
+name: safespace
+version: "0.2.1"
+description: "SafeSpace - Content moderation RL environment with multi-step investigation, deterministic grading, and trajectory-shaped rewards"
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+
+# Model definitions
+action: ModerationAction
+observation: ModerationObservation
+state: ModerationState
+
+# Tasks
+tasks:
+  - name: clear_violations
+    description: "Easy tier - obvious violations where text alone is sufficient"
+    difficulty: easy
+    expected_baseline: 0.90-0.92
+
+  - name: context_dependent
+    description: "Medium tier - context changes the correct decision"
+    difficulty: medium
+    expected_baseline: 0.60-0.63
+
+  - name: policy_edge_cases
+    description: "Hard tier - policy ambiguities, conflicting signals"
+    difficulty: hard
+    expected_baseline: 0.56-0.59
