@@ -470,25 +470,6 @@ content_moderation_env/
 └── tests/
 ```
 
-## Verification Checklist
-
-```bash
-scripts/preflight.sh
-python scripts/check_package_assets.py
-scripts/report_stats.py --format json
-python inference.py --validate-config
-python inference.py --mode canonical
-python inference.py --mode full --limit-per-task 3
-```
-
-## Submission Checklist
-
-- Run validation, Docker builds, and Space deployment from the repository root that contains `openenv.yaml`, `inference.py`, and `Dockerfile`.
-- Run `scripts/preflight.sh` before submission; it covers targeted tests, full `pytest`, manifest validation, wheel asset checks, `inference.py --validate-config`, `openenv validate .`, and Docker-backed smoke checks when Docker is available.
-- Build from the repository-root `Dockerfile` with `docker build -t safespace:latest .`.
-- Treat `python inference.py --mode canonical` as the headline benchmark command and `python inference.py --mode full` as the broader regression sweep.
-- Report the 60-scenario canonical benchmark as the primary submission score and the 367-scenario corpus as the broader regression/stress suite.
-
 ## License
 
 This project is licensed under the BSD 3-Clause License. See `LICENSE`.
