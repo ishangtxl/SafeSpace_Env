@@ -1,5 +1,6 @@
 """Tests for the canonical baseline evaluator helpers."""
 
+import asyncio
 import json
 from types import SimpleNamespace
 
@@ -25,6 +26,7 @@ from content_moderation_env.inference import (
     parse_json_response,
     run_episode,
     run_task_evaluation,
+    resolve_env_target,
     resolve_api_key_and_source,
     sanitize_prompt_text,
     summarize_task,
@@ -57,13 +59,13 @@ class FakeAgent:
 
 
 class FakeEnv:
-    """Minimal sync-client-like object for testing run_episode."""
+    """Minimal async-client-like object for testing run_episode."""
 
     def __init__(self):
         self._reward = 0.0
         self._step_index = 0
 
-    def reset(self, **kwargs):
+    async def reset(self, **kwargs):
         self._reward = 0.0
         self._step_index = 0
         return SimpleNamespace(
@@ -90,7 +92,7 @@ class FakeEnv:
             done=False,
         )
 
-    def step(self, action):
+    async def step(self, action):
         self._step_index += 1
         if action.action_type == "request_thread_context":
             self._reward += 0.04
@@ -155,8 +157,12 @@ class FakeEnv:
             done=True,
         )
 
-    def state(self):
-        return SimpleNamespace(difficulty="medium", episode_reward=self._reward)
+    async def state(self):
+        return SimpleNamespace(
+            difficulty="medium",
+            episode_reward=self._reward,
+            raw_episode_reward=self._reward,
+        )
 
 
 def test_parse_json_response_handles_wrapped_json():
@@ -188,16 +194,27 @@ def test_resolve_api_key_and_source_prefers_documented_precedence(monkeypatch):
     assert resolve_api_key_and_source() == ("azure-token", "AZURE_OPENAI_API_KEY")
 
 
-def test_run_episode_uses_cumulative_episode_reward():
+def test_run_episode_uses_cumulative_episode_reward(monkeypatch, capsys):
     """Inference should report both episode reward and normalized task grade."""
-    result = run_episode(FakeEnv(), FakeAgent(), "med_test")
+    monkeypatch.setattr(inference_module, "MODEL_NAME", "test-model")
+    result = asyncio.run(run_episode(FakeEnv(), FakeAgent(), "med_test"))
     assert result["scenario_id"] == "med_test"
     assert result["task_id"] == "context_dependent"
     assert result["episode_reward"] == 0.64
+    assert result["raw_episode_reward"] == 0.64
     assert result["task_grade"] == 0.81
     assert result["investigation_plan"] == ["thread_context"]
+    assert result["steps_taken"] == 2
+    assert result["step_rewards"] == [0.04, 0.60]
     assert result["status"] == "success"
     assert result["failure"] is None
+    stdout_lines = capsys.readouterr().out.strip().splitlines()
+    assert stdout_lines == [
+        "[START] task=context_dependent env=safespace model=test-model",
+        "[STEP] step=1 action=request_thread_context reward=0.04 done=false error=null",
+        "[STEP] step=2 action=decide:approve:none:none:0.70 reward=0.60 done=true error=null",
+        "[END] success=true steps=2 score=0.81 rewards=0.04,0.60",
+    ]
 
 
 def test_infer_task_and_difficulty_from_scenario_prefix():
@@ -220,9 +237,12 @@ def test_build_failed_episode_result_uses_zero_scored_fallbacks():
     assert result["task_id"] == "context_dependent"
     assert result["difficulty"] == "medium"
     assert result["episode_reward"] == 0.0
+    assert result["raw_episode_reward"] == 0.0
     assert result["task_grade"] == 0.0
     assert result["status"] == "failed"
     assert result["failure"]["stage"] == "make_decision"
+    assert result["step_rewards"] == []
+    assert result["steps_taken"] == 0
 
 
 def test_normalize_violation_maps_verbose_labels():
@@ -350,13 +370,24 @@ def test_summarize_task_prefers_task_grade_as_headline_metric():
     summary = summarize_task(
         "context_dependent",
         [
-            {"task_grade": 0.8, "episode_reward": 0.5, "decision": "approve"},
-            {"task_grade": 0.6, "episode_reward": 0.3, "decision": "remove"},
+            {
+                "task_grade": 0.8,
+                "episode_reward": 0.5,
+                "raw_episode_reward": 0.4,
+                "decision": "approve",
+            },
+            {
+                "task_grade": 0.6,
+                "episode_reward": 0.3,
+                "raw_episode_reward": 0.2,
+                "decision": "remove",
+            },
         ],
     )
 
     assert summary["average_task_grade"] == 0.7
     assert summary["average_reward"] == 0.4
+    assert summary["average_raw_reward"] == pytest.approx(0.3)
     assert summary["decision_distribution"] == {"approve": 1, "remove": 1}
 
 
@@ -368,11 +399,13 @@ def test_run_task_evaluation_records_failed_episode_metadata():
             del observation, difficulty
             raise ModelRequestError("decision failure")
 
-    summary, failure_details = run_task_evaluation(
-        FakeEnv(),
-        FailingAgent(),
-        "context_dependent",
-        ["med_fail"],
+    summary, failure_details = asyncio.run(
+        run_task_evaluation(
+            FakeEnv(),
+            FailingAgent(),
+            "context_dependent",
+            ["med_fail"],
+        )
     )
 
     assert summary["num_scenarios"] == 1
@@ -395,12 +428,14 @@ def test_run_episode_wraps_stage_failures_with_episode_metadata():
     """Low-level episode failures should retain scenario and stage context."""
 
     class BrokenEnv(FakeEnv):
-        def reset(self, **kwargs):
+        async def reset(self, **kwargs):
             del kwargs
             raise RuntimeError("reset failed")
 
     with pytest.raises(EpisodeExecutionError) as exc_info:
-        run_episode(BrokenEnv(), FakeAgent(), "med_fail", task_id="context_dependent")
+        asyncio.run(
+            run_episode(BrokenEnv(), FakeAgent(), "med_fail", task_id="context_dependent")
+        )
 
     assert exc_info.value.scenario_id == "med_fail"
     assert exc_info.value.task_id == "context_dependent"
@@ -625,6 +660,7 @@ def test_validate_runtime_configuration_returns_manifest_metadata(monkeypatch):
     assert metadata["canonical_task_counts"]["clear_violations"] == 20
     assert metadata["api_key_source"] == "OPENAI_API_KEY"
     assert metadata["openai_seed"] == OPENAI_SEED
+    assert metadata["connection_mode"] == "base_url"
 
 
 def test_validate_runtime_configuration_requires_model_name(monkeypatch):
@@ -650,11 +686,26 @@ def test_validate_runtime_configuration_requires_api_key(monkeypatch):
         validate_runtime_configuration("canonical")
 
 
+def test_resolve_env_target_prefers_local_image_when_no_url(monkeypatch):
+    """A local image should be used only when no URL target is configured."""
+    monkeypatch.setattr(inference_module, "ENV_BASE_URL", None)
+    monkeypatch.setattr(inference_module, "LOCAL_IMAGE_NAME", "safespace:latest")
+
+    target = resolve_env_target(None)
+
+    assert target == {
+        "connection_mode": "local_image",
+        "env_base_url": None,
+        "local_image_name": "safespace:latest",
+    }
+
+
 def test_main_validate_config_prints_manifest_metadata(monkeypatch, capsys):
     """CLI validation mode should emit the manifest version and counts."""
     monkeypatch.setattr(inference_module, "MODEL_NAME", "test-model")
     monkeypatch.setattr(inference_module, "API_BASE_URL", "https://example.invalid/v1")
     monkeypatch.setattr(inference_module, "ENV_BASE_URL", "http://localhost:8000")
+    monkeypatch.setattr(inference_module, "LOCAL_IMAGE_NAME", None)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("HF_TOKEN", raising=False)
     monkeypatch.setenv("API_KEY", "test-key")
@@ -666,6 +717,7 @@ def test_main_validate_config_prints_manifest_metadata(monkeypatch, capsys):
             limit_per_task=None,
             validate_config=True,
             env_base_url="http://localhost:8000",
+            summary_json_path=None,
         ),
     )
 
@@ -674,16 +726,19 @@ def test_main_validate_config_prints_manifest_metadata(monkeypatch, capsys):
     assert payload["manifest_version"]
     assert payload["canonical_task_counts"]["policy_edge_cases"] == 20
     assert payload["api_key_source"] == "API_KEY"
+    assert payload["connection_mode"] == "base_url"
 
 
-def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys):
-    """CLI evaluation mode should surface per-scenario failure accounting."""
+def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys, tmp_path):
+    """CLI evaluation mode should write aggregate JSON to the requested summary path."""
     monkeypatch.setattr(inference_module, "MODEL_NAME", "test-model")
     monkeypatch.setattr(inference_module, "API_BASE_URL", "https://example.invalid/v1")
     monkeypatch.setattr(inference_module, "ENV_BASE_URL", "http://localhost:8000")
+    monkeypatch.setattr(inference_module, "LOCAL_IMAGE_NAME", None)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("API_KEY", raising=False)
     monkeypatch.setenv("HF_TOKEN", "test-key")
+    summary_path = tmp_path / "summary.json"
     monkeypatch.setattr(
         inference_module.argparse.ArgumentParser,
         "parse_args",
@@ -692,34 +747,36 @@ def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys):
             limit_per_task=1,
             validate_config=False,
             env_base_url="http://localhost:8000",
+            summary_json_path=str(summary_path),
         ),
     )
 
     class DummySafeSpaceEnv:
-        def __init__(self, base_url):
-            self.base_url = base_url
-
-        def sync(self):
+        async def __aenter__(self):
             return self
 
-        def __enter__(self):
-            return object()
-
-        def __exit__(self, exc_type, exc, tb):
+        async def __aexit__(self, exc_type, exc, tb):
             del exc_type, exc, tb
             return False
 
-    def fake_run_task_evaluation(env, agent, task_id, scenario_ids):
+    async def fake_create_env_client(explicit_base_url):
+        del explicit_base_url
+        return DummySafeSpaceEnv()
+
+    async def fake_run_task_evaluation(env, agent, task_id, scenario_ids):
         del env, agent
         result = {
             "scenario_id": scenario_ids[0],
             "task_id": task_id,
             "difficulty": inference_module.TASK_TO_DIFFICULTY[task_id],
             "episode_reward": 1.0 if task_id != "context_dependent" else 0.0,
+            "raw_episode_reward": 0.8 if task_id != "context_dependent" else 0.0,
             "task_grade": 1.0 if task_id != "context_dependent" else 0.0,
             "decision": "approve" if task_id != "context_dependent" else None,
             "confidence": 0.9 if task_id != "context_dependent" else None,
             "investigation_plan": [],
+            "step_rewards": [],
+            "steps_taken": 0,
             "final_reward_breakdown": None,
             "final_grade_breakdown": None,
             "status": "success" if task_id != "context_dependent" else "failed",
@@ -742,7 +799,7 @@ def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys):
         return summary, failures
 
     monkeypatch.setattr(inference_module, "SafeSpaceAgent", lambda: object())
-    monkeypatch.setattr(inference_module, "SafeSpaceEnv", DummySafeSpaceEnv)
+    monkeypatch.setattr(inference_module, "create_env_client", fake_create_env_client)
     monkeypatch.setattr(
         inference_module,
         "load_scenario_ids",
@@ -755,13 +812,15 @@ def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys):
     )
 
     main()
-    payload = json.loads(capsys.readouterr().out)
+    assert capsys.readouterr().out == ""
+    payload = json.loads(summary_path.read_text())
 
     assert payload["total_scenarios"] == 3
     assert payload["successful_scenarios"] == 2
     assert payload["failed_scenarios"] == 1
     assert payload["failure_count"] == 1
     assert payload["api_key_source"] == "HF_TOKEN"
+    assert payload["overall_average_raw_reward"] == pytest.approx((0.8 + 0.0 + 0.8) / 3)
     assert payload["failure_details"] == [
         {
             "scenario_id": "context_dependent_canonical_001",

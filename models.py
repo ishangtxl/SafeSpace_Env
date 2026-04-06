@@ -122,6 +122,15 @@ class BreakdownComponent(BaseModel):
     score: Optional[float] = Field(default=None, description="Component score")
     max: Optional[float] = Field(default=None, description="Maximum component score")
     min: Optional[float] = Field(default=None, description="Minimum component score")
+    raw_score: Optional[float] = Field(
+        default=None, description="Raw component score before normalization"
+    )
+    raw_max: Optional[float] = Field(
+        default=None, description="Raw maximum component score before normalization"
+    )
+    raw_min: Optional[float] = Field(
+        default=None, description="Raw minimum component score before normalization"
+    )
     weight: Optional[float] = Field(
         default=None, description="Normalized weighting used by the task grade"
     )
@@ -138,30 +147,71 @@ class RewardBreakdown(BaseModel):
 
     reward_type: str = Field(default="unknown", description="Reward breakdown category")
     total: float = Field(default=0.0, description="Total reward for this step")
-    score: Optional[float] = Field(default=None, description="Raw score for simple cases")
+    raw_total: Optional[float] = Field(
+        default=None, description="Raw total reward for this step before normalization"
+    )
+    score: Optional[float] = Field(
+        default=None, description="Normalized score for simple cases"
+    )
+    raw_score: Optional[float] = Field(
+        default=None, description="Raw score for simple cases before normalization"
+    )
     requested_score: Optional[float] = Field(
-        default=None, description="Uncapped score requested by the reward rule"
+        default=None, description="Normalized uncapped score requested by the reward rule"
+    )
+    raw_requested_score: Optional[float] = Field(
+        default=None,
+        description="Raw uncapped score requested by the reward rule before normalization",
     )
     applied_score: Optional[float] = Field(
-        default=None, description="Actual score applied after caps or bounds"
+        default=None, description="Normalized score applied after caps or bounds"
+    )
+    raw_applied_score: Optional[float] = Field(
+        default=None,
+        description="Raw score applied after caps or bounds before normalization",
     )
     step_total: Optional[float] = Field(
-        default=None, description="Combined step reward in multi-part terminal cases"
+        default=None, description="Normalized combined step reward in multi-part terminal cases"
+    )
+    raw_step_total: Optional[float] = Field(
+        default=None,
+        description="Raw combined step reward in multi-part terminal cases before normalization",
     )
     trajectory_total: Optional[float] = Field(
-        default=None, description="Cumulative trajectory shaping reward"
+        default=None, description="Normalized cumulative trajectory shaping reward"
+    )
+    raw_trajectory_total: Optional[float] = Field(
+        default=None,
+        description="Raw cumulative trajectory shaping reward before normalization",
     )
     episode_total: Optional[float] = Field(
-        default=None, description="Running episode reward after this step"
+        default=None, description="Normalized running episode reward after this step"
+    )
+    raw_episode_total: Optional[float] = Field(
+        default=None,
+        description="Raw running episode reward after this step before normalization",
     )
     cumulative_total: Optional[float] = Field(
-        default=None, description="Episode reward total after terminal application"
+        default=None,
+        description="Normalized episode reward total after terminal application",
+    )
+    raw_cumulative_total: Optional[float] = Field(
+        default=None,
+        description="Raw episode reward total after terminal application before normalization",
     )
     theoretical_terminal_max: Optional[float] = Field(
-        default=None, description="Maximum possible terminal reward"
+        default=None, description="Normalized maximum possible terminal reward"
     )
     theoretical_terminal_min: Optional[float] = Field(
-        default=None, description="Minimum possible terminal reward"
+        default=None, description="Normalized minimum possible terminal reward"
+    )
+    raw_theoretical_terminal_max: Optional[float] = Field(
+        default=None,
+        description="Raw maximum possible terminal reward before normalization",
+    )
+    raw_theoretical_terminal_min: Optional[float] = Field(
+        default=None,
+        description="Raw minimum possible terminal reward before normalization",
     )
     context_field: Optional[str] = Field(
         default=None, description="Context source involved in the reward"
@@ -392,7 +442,12 @@ class ModerationState(State):
     decision_made: bool = Field(
         default=False, description="Whether a terminal decision has been made"
     )
-    episode_reward: float = Field(default=0.0, description="Total reward for episode")
+    episode_reward: float = Field(
+        default=0.0, description="Normalized total reward for episode"
+    )
+    raw_episode_reward: float = Field(
+        default=0.0, description="Raw total reward for episode before normalization"
+    )
     done: bool = Field(default=False, description="Whether the episode is terminal")
     last_error_code: Optional[str] = Field(
         default=None,

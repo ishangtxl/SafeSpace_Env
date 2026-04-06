@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 from content_moderation_env import ModerationAction, ModerationState
 from content_moderation_env.client import SafeSpaceEnv
 from content_moderation_env.server.app import app
+from content_moderation_env.server.reward import normalize_public_reward
 from content_moderation_env.server.scenarios import get_scenario_statistics
 
 
@@ -153,6 +154,7 @@ def test_typed_client_state_round_trips_public_fields(live_server_url):
         assert state.actions_taken == 0
         assert state.context_requested == []
         assert state.episode_reward == 0.0
+        assert state.raw_episode_reward == 0.0
 
         env.step(ModerationAction(action_type="request_thread_context"))
 
@@ -163,7 +165,8 @@ def test_typed_client_state_round_trips_public_fields(live_server_url):
         assert state.trigger_type == "user_report"
         assert state.actions_taken == 1
         assert state.context_requested == ["thread_context"]
-        assert state.episode_reward == pytest.approx(0.05)
+        assert state.episode_reward == pytest.approx(normalize_public_reward(0.05))
+        assert state.raw_episode_reward == pytest.approx(0.05)
 
 
 def test_report_stats_script_outputs_expected_sections():

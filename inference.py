@@ -5,18 +5,20 @@ Canonical baseline evaluator for SafeSpace.
 Required environment variables:
     API_BASE_URL: OpenAI-compatible API endpoint for the model
     MODEL_NAME: Model identifier for inference
-    One credential variable: OPENAI_API_KEY, API_KEY, HF_TOKEN,
-        or AZURE_OPENAI_API_KEY
+    HF_TOKEN: Primary Hugging Face / router credential
 
 Optional environment variables:
-    ENV_BASE_URL: Running SafeSpace server URL (default: http://localhost:8000)
+    ENV_BASE_URL: Running SafeSpace server URL
+    LOCAL_IMAGE_NAME: Local Docker image used when no ENV_BASE_URL is set
 """
 
 import argparse
+import asyncio
 import json
 import os
 import re
 import time
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
@@ -43,8 +45,12 @@ except ImportError:  # pragma: no cover
 # Default uses HuggingFace Router. Baseline scores in README were generated
 # using Azure AI Foundry. Set API_BASE_URL appropriately for your setup.
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
-MODEL_NAME = os.getenv("MODEL_NAME")
-ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
+ENV_BASE_URL = os.getenv("ENV_BASE_URL")
+LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME") or os.getenv("IMAGE_NAME")
+DEFAULT_ENV_BASE_URL = "http://localhost:8000"
+BENCHMARK_NAME = "safespace"
+SUCCESS_SCORE_THRESHOLD = 0.50
 
 MAX_TOKENS = 500
 TEMPERATURE = 0.0  # Set to 0 for deterministic outputs
@@ -713,6 +719,91 @@ def compact_trigger_info_for_prompt(trigger_info: Dict[str, Any]) -> Dict[str, A
     return compact
 
 
+def format_log_bool(value: bool) -> str:
+    """Format booleans for evaluator-compatible stdout."""
+    return str(bool(value)).lower()
+
+
+def format_action_token(action: ModerationAction) -> str:
+    """Render a single-line action token for evaluator step logs."""
+    if action.action_type != "decide":
+        return action.action_type
+
+    decision = action.decision or "unknown"
+    primary_violation = action.primary_violation or "none"
+    severity = action.severity or "none"
+    confidence = 0.0 if action.confidence is None else float(action.confidence)
+    return (
+        f"decide:{decision}:{primary_violation}:{severity}:{confidence:.2f}"
+    )
+
+
+def log_start(task: str, env: str, model: str) -> None:
+    """Emit the required episode-start log line."""
+    print(f"[START] task={task} env={env} model={model}", flush=True)
+
+
+def log_step(
+    *,
+    step: int,
+    action: str,
+    reward: float,
+    done: bool,
+    error: Optional[str],
+) -> None:
+    """Emit the required per-step log line."""
+    error_value = error if error else "null"
+    print(
+        f"[STEP] step={step} action={action} reward={reward:.2f} "
+        f"done={format_log_bool(done)} error={error_value}",
+        flush=True,
+    )
+
+
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
+    """Emit the required episode-end log line."""
+    rewards_text = ",".join(f"{reward:.2f}" for reward in rewards)
+    print(
+        f"[END] success={format_log_bool(success)} steps={steps} "
+        f"score={score:.2f} rewards={rewards_text}",
+        flush=True,
+    )
+
+
+def clamp_score(score: Optional[float]) -> float:
+    """Clamp the final score into the public [0, 1] range."""
+    if score is None:
+        return 0.0
+    return max(0.0, min(1.0, float(score)))
+
+
+def resolve_env_target(explicit_base_url: Optional[str]) -> Dict[str, Optional[str]]:
+    """Resolve how the evaluator should connect to the environment."""
+    if explicit_base_url:
+        return {
+            "connection_mode": "base_url",
+            "env_base_url": explicit_base_url,
+            "local_image_name": None,
+        }
+    if ENV_BASE_URL:
+        return {
+            "connection_mode": "base_url",
+            "env_base_url": ENV_BASE_URL,
+            "local_image_name": None,
+        }
+    if LOCAL_IMAGE_NAME:
+        return {
+            "connection_mode": "local_image",
+            "env_base_url": None,
+            "local_image_name": LOCAL_IMAGE_NAME,
+        }
+    return {
+        "connection_mode": "base_url",
+        "env_base_url": DEFAULT_ENV_BASE_URL,
+        "local_image_name": None,
+    }
+
+
 def validate_runtime_configuration(mode: str) -> Dict[str, Any]:
     """Validate env vars and benchmark assets before the first model call."""
     api_key, api_key_source = resolve_api_key_and_source()
@@ -720,12 +811,13 @@ def validate_runtime_configuration(mode: str) -> Dict[str, Any]:
         raise InferenceConfigurationError("Missing MODEL_NAME.")
     if not api_key:
         raise InferenceConfigurationError(
-            "Missing API key. Set OPENAI_API_KEY, API_KEY, HF_TOKEN, or "
+            "Missing API key. Set HF_TOKEN, API_KEY, OPENAI_API_KEY, or "
             "AZURE_OPENAI_API_KEY."
         )
 
     manifest = validate_benchmark_manifest()
     canonical = manifest["canonical"]
+    target = resolve_env_target(None)
     return {
         "manifest_version": manifest["manifest_version"],
         "canonical_task_counts": {
@@ -736,6 +828,9 @@ def validate_runtime_configuration(mode: str) -> Dict[str, Any]:
         "api_base_url": API_BASE_URL,
         "api_key_source": api_key_source,
         "openai_seed": OPENAI_SEED,
+        "connection_mode": target["connection_mode"],
+        "env_base_url": target["env_base_url"],
+        "local_image_name": target["local_image_name"],
     }
 
 
@@ -965,7 +1060,7 @@ class SafeSpaceAgent:
         api_key, api_key_source = resolve_api_key_and_source()
         if not api_key:
             raise InferenceConfigurationError(
-                "Missing API key. Set OPENAI_API_KEY, API_KEY, HF_TOKEN, or "
+                "Missing API key. Set HF_TOKEN, API_KEY, OPENAI_API_KEY, or "
                 "AZURE_OPENAI_API_KEY."
             )
         if not MODEL_NAME:
@@ -1271,10 +1366,13 @@ def build_failed_episode_result(
         "task_id": resolved_task_id,
         "difficulty": resolved_difficulty,
         "episode_reward": 0.0,
+        "raw_episode_reward": 0.0,
         "task_grade": 0.0,
         "decision": None,
         "confidence": None,
         "investigation_plan": [],
+        "step_rewards": [],
+        "steps_taken": 0,
         "final_reward_breakdown": None,
         "final_grade_breakdown": None,
         "status": "failed",
@@ -1282,121 +1380,187 @@ def build_failed_episode_result(
     }
 
 
-def run_episode(
+async def run_episode(
     env: Any,
     agent: SafeSpaceAgent,
     scenario_id: str,
     task_id: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Run one evaluation episode against the live environment client."""
+    """Run one evaluation episode and emit submission-compatible stdout logs."""
     resolved_task_id = task_id or infer_task_id(scenario_id)
+    difficulty = infer_difficulty(resolved_task_id, scenario_id)
+    investigation_plan: List[str] = []
+    decision_action: Optional[ModerationAction] = None
+    observation: Optional[ModerationObservation] = None
+    result: Any = None
+    step_rewards: List[float] = []
+    steps_taken = 0
+    failure_exc: Optional[EpisodeExecutionError] = None
+    task_grade = 0.0
+    episode_reward = 0.0
+    raw_episode_reward = 0.0
+
+    log_start(resolved_task_id or "unknown", BENCHMARK_NAME, MODEL_NAME)
 
     try:
-        result = env.reset(scenario_id=scenario_id)
-    except Exception as exc:
-        raise EpisodeExecutionError(
-            scenario_id=scenario_id,
-            task_id=resolved_task_id,
-            stage="reset",
-            error=str(exc),
-        ) from exc
+        try:
+            result = await env.reset(scenario_id=scenario_id)
+        except Exception as exc:
+            raise EpisodeExecutionError(
+                scenario_id=scenario_id,
+                task_id=resolved_task_id,
+                stage="reset",
+                error=str(exc),
+                difficulty=difficulty,
+            ) from exc
 
-    observation = result.observation
-    try:
-        difficulty = env.state().difficulty or infer_difficulty(
-            resolved_task_id, scenario_id
+        observation = result.observation
+        try:
+            difficulty = (await env.state()).difficulty or infer_difficulty(
+                resolved_task_id, scenario_id
+            )
+        except Exception as exc:
+            raise EpisodeExecutionError(
+                scenario_id=scenario_id,
+                task_id=resolved_task_id,
+                stage="state_after_reset",
+                error=str(exc),
+                difficulty=difficulty,
+            ) from exc
+
+        try:
+            investigation_plan = agent.decide_investigation(observation, difficulty)
+        except Exception as exc:
+            raise EpisodeExecutionError(
+                scenario_id=scenario_id,
+                task_id=resolved_task_id,
+                stage="decide_investigation",
+                error=str(exc),
+                difficulty=difficulty,
+            ) from exc
+
+        for context_key in investigation_plan:
+            action = ModerationAction(action_type=context_to_action(context_key))
+            try:
+                result = await env.step(action)
+            except Exception as exc:
+                raise EpisodeExecutionError(
+                    scenario_id=scenario_id,
+                    task_id=resolved_task_id,
+                    stage=f"investigation_step:{context_key}",
+                    error=str(exc),
+                    difficulty=difficulty,
+                ) from exc
+
+            observation = result.observation
+            steps_taken += 1
+            step_reward = 0.0 if result.reward is None else float(result.reward)
+            step_rewards.append(step_reward)
+            log_step(
+                step=steps_taken,
+                action=format_action_token(action),
+                reward=step_reward,
+                done=result.done,
+                error=observation.error_code,
+            )
+            if result.done:
+                break
+
+        if result is not None and not result.done:
+            try:
+                decision_action = agent.make_decision(observation, difficulty)
+            except Exception as exc:
+                raise EpisodeExecutionError(
+                    scenario_id=scenario_id,
+                    task_id=resolved_task_id,
+                    stage="make_decision",
+                    error=str(exc),
+                    difficulty=difficulty,
+                ) from exc
+
+            try:
+                result = await env.step(decision_action)
+            except Exception as exc:
+                raise EpisodeExecutionError(
+                    scenario_id=scenario_id,
+                    task_id=resolved_task_id,
+                    stage="decision_step",
+                    error=str(exc),
+                    difficulty=difficulty,
+                ) from exc
+
+            observation = result.observation
+            steps_taken += 1
+            step_reward = 0.0 if result.reward is None else float(result.reward)
+            step_rewards.append(step_reward)
+            log_step(
+                step=steps_taken,
+                action=format_action_token(decision_action),
+                reward=step_reward,
+                done=result.done,
+                error=observation.error_code,
+            )
+
+        try:
+            state = await env.state()
+        except Exception as exc:
+            raise EpisodeExecutionError(
+                scenario_id=scenario_id,
+                task_id=resolved_task_id,
+                stage="state_after_episode",
+                error=str(exc),
+                difficulty=difficulty,
+            ) from exc
+
+        episode_reward = (
+            float(state.episode_reward) if state.episode_reward is not None else 0.0
         )
-    except Exception as exc:
-        raise EpisodeExecutionError(
-            scenario_id=scenario_id,
-            task_id=resolved_task_id,
-            stage="state_after_reset",
-            error=str(exc),
-        ) from exc
+        raw_episode_reward = float(
+            getattr(state, "raw_episode_reward", episode_reward)
+        )
+        task_grade = clamp_score(
+            observation.task_grade if observation and observation.task_grade is not None else 0.0
+        )
 
-    try:
-        investigation_plan = agent.decide_investigation(observation, difficulty)
-    except Exception as exc:
-        raise EpisodeExecutionError(
-            scenario_id=scenario_id,
-            task_id=resolved_task_id,
-            stage="decide_investigation",
-            error=str(exc),
-            difficulty=difficulty,
-        ) from exc
-
-    for context_key in investigation_plan:
-        try:
-            result = env.step(ModerationAction(action_type=context_to_action(context_key)))
-        except Exception as exc:
-            raise EpisodeExecutionError(
-                scenario_id=scenario_id,
-                task_id=resolved_task_id,
-                stage=f"investigation_step:{context_key}",
-                error=str(exc),
-                difficulty=difficulty,
-            ) from exc
-        observation = result.observation
-        if result.done:
-            break
-
-    decision_action = None
-    if not result.done:
-        try:
-            decision_action = agent.make_decision(observation, difficulty)
-        except Exception as exc:
-            raise EpisodeExecutionError(
-                scenario_id=scenario_id,
-                task_id=resolved_task_id,
-                stage="make_decision",
-                error=str(exc),
-                difficulty=difficulty,
-            ) from exc
-        try:
-            result = env.step(decision_action)
-        except Exception as exc:
-            raise EpisodeExecutionError(
-                scenario_id=scenario_id,
-                task_id=resolved_task_id,
-                stage="decision_step",
-                error=str(exc),
-                difficulty=difficulty,
-            ) from exc
-        observation = result.observation
-
-    try:
-        state = env.state()
-    except Exception as exc:
-        raise EpisodeExecutionError(
-            scenario_id=scenario_id,
-            task_id=resolved_task_id,
-            stage="state_after_episode",
-            error=str(exc),
-            difficulty=difficulty,
-        ) from exc
-
-    episode_reward = state.episode_reward if state.episode_reward is not None else 0.0
-    task_grade = observation.task_grade if observation.task_grade is not None else 0.0
-
-    return {
-        "scenario_id": scenario_id,
-        "task_id": resolved_task_id,
-        "difficulty": difficulty,
-        "episode_reward": episode_reward,
-        "task_grade": task_grade,
-        "decision": decision_action.decision if decision_action else None,
-        "confidence": decision_action.confidence if decision_action else None,
-        "investigation_plan": investigation_plan,
-        "final_reward_breakdown": to_jsonable(observation.reward_breakdown),
-        "final_grade_breakdown": to_jsonable(observation.grade_breakdown),
-        "status": "success",
-        "failure": None,
-    }
+        return {
+            "scenario_id": scenario_id,
+            "task_id": resolved_task_id,
+            "difficulty": difficulty,
+            "episode_reward": episode_reward,
+            "raw_episode_reward": raw_episode_reward,
+            "task_grade": task_grade,
+            "decision": decision_action.decision if decision_action else None,
+            "confidence": decision_action.confidence if decision_action else None,
+            "investigation_plan": investigation_plan,
+            "step_rewards": step_rewards,
+            "steps_taken": steps_taken,
+            "final_reward_breakdown": to_jsonable(
+                observation.reward_breakdown if observation else None
+            ),
+            "final_grade_breakdown": to_jsonable(
+                observation.grade_breakdown if observation else None
+            ),
+            "status": "success",
+            "failure": None,
+        }
+    except EpisodeExecutionError as exc:
+        failure_exc = exc
+        raise
+    finally:
+        final_score = clamp_score(task_grade)
+        final_success = failure_exc is None and final_score >= SUCCESS_SCORE_THRESHOLD
+        log_end(
+            success=final_success,
+            steps=steps_taken,
+            score=final_score,
+            rewards=step_rewards,
+        )
 
 
 def summarize_task(task_id: str, results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Build deterministic aggregate metrics for one task."""
     total_reward = sum(item["episode_reward"] for item in results)
+    total_raw_reward = sum(item.get("raw_episode_reward", 0.0) for item in results)
     total_task_grade = sum(item["task_grade"] for item in results)
     decision_counts: Dict[str, int] = {}
     for item in results:
@@ -1408,14 +1572,16 @@ def summarize_task(task_id: str, results: List[Dict[str, Any]]) -> Dict[str, Any
         "num_scenarios": len(results),
         "average_task_grade": total_task_grade / len(results) if results else 0.0,
         "average_reward": total_reward / len(results) if results else 0.0,
+        "average_raw_reward": total_raw_reward / len(results) if results else 0.0,
         "total_task_grade": total_task_grade,
         "total_reward": total_reward,
+        "total_raw_reward": total_raw_reward,
         "decision_distribution": decision_counts,
         "results": results,
     }
 
 
-def run_task_evaluation(
+async def run_task_evaluation(
     env: Any,
     agent: SafeSpaceAgent,
     task_id: str,
@@ -1427,7 +1593,7 @@ def run_task_evaluation(
 
     for scenario_id in scenario_ids:
         try:
-            result = run_episode(env, agent, scenario_id, task_id=task_id)
+            result = await run_episode(env, agent, scenario_id, task_id=task_id)
         except EpisodeExecutionError as exc:
             result = build_failed_episode_result(
                 task_id=exc.task_id,
@@ -1455,6 +1621,109 @@ def run_task_evaluation(
     return summary, failure_details
 
 
+async def create_env_client(explicit_base_url: Optional[str]) -> SafeSpaceEnv:
+    """Create an environment client from a URL or a local Docker image."""
+    target = resolve_env_target(explicit_base_url)
+    if target["connection_mode"] == "local_image" and target["local_image_name"]:
+        return await SafeSpaceEnv.from_docker_image(target["local_image_name"])
+    if target["env_base_url"] is None:
+        raise InferenceConfigurationError(
+            "Unable to resolve an environment target. Set ENV_BASE_URL or LOCAL_IMAGE_NAME."
+        )
+    return SafeSpaceEnv(base_url=target["env_base_url"])
+
+
+def write_summary_file(path: Optional[str], summary: Dict[str, Any]) -> None:
+    """Write the aggregate evaluation summary to disk when requested."""
+    if not path:
+        return
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(summary, indent=2) + "\n")
+
+
+async def _async_main(args: argparse.Namespace) -> None:
+    """Run the evaluator in async mode."""
+    config_metadata = validate_runtime_configuration(args.mode)
+    target = resolve_env_target(args.env_base_url)
+
+    if args.validate_config:
+        payload = {
+            **config_metadata,
+            "connection_mode": target["connection_mode"],
+            "env_base_url": target["env_base_url"],
+            "local_image_name": target["local_image_name"],
+        }
+        print(json.dumps(payload, indent=2))
+        return
+
+    agent = SafeSpaceAgent()
+    started_at = time.time()
+    task_summaries: Dict[str, Any] = {}
+    failure_details: List[Dict[str, Any]] = []
+
+    client = await create_env_client(args.env_base_url)
+    async with client:
+        for task_id in TASK_TO_DIFFICULTY:
+            scenario_ids = load_scenario_ids(task_id, args.mode)
+            if args.limit_per_task is not None:
+                scenario_ids = scenario_ids[: args.limit_per_task]
+            task_summary, task_failures = await run_task_evaluation(
+                client,
+                agent,
+                task_id,
+                scenario_ids,
+            )
+            task_summaries[task_id] = task_summary
+            failure_details.extend(task_failures)
+
+    total_scenarios = sum(
+        summary["num_scenarios"] for summary in task_summaries.values()
+    )
+    total_reward = sum(summary["total_reward"] for summary in task_summaries.values())
+    total_raw_reward = sum(
+        summary["total_raw_reward"] for summary in task_summaries.values()
+    )
+    total_task_grade = sum(
+        summary["total_task_grade"] for summary in task_summaries.values()
+    )
+    failure_count = len(failure_details)
+    manifest = get_benchmark_manifest()
+    summary = {
+        "benchmark_manifest_version": manifest["manifest_version"],
+        "evaluation_mode": args.mode,
+        "connection_mode": target["connection_mode"],
+        "env_base_url": target["env_base_url"],
+        "local_image_name": target["local_image_name"],
+        "model_name": MODEL_NAME,
+        "api_base_url": API_BASE_URL,
+        "api_key_source": config_metadata["api_key_source"],
+        "openai_seed": OPENAI_SEED,
+        "failure_count": failure_count,
+        "successful_scenarios": total_scenarios - failure_count,
+        "failed_scenarios": failure_count,
+        "failure_details": failure_details,
+        "limit_per_task": args.limit_per_task,
+        "tasks": task_summaries,
+        "overall_average_task_grade": (
+            total_task_grade / total_scenarios if total_scenarios else 0.0
+        ),
+        "overall_average_reward": (
+            total_reward / total_scenarios if total_scenarios else 0.0
+        ),
+        "overall_average_raw_reward": (
+            total_raw_reward / total_scenarios if total_scenarios else 0.0
+        ),
+        "overall_total_task_grade": total_task_grade,
+        "overall_total_reward": total_reward,
+        "overall_total_raw_reward": total_raw_reward,
+        "total_scenarios": total_scenarios,
+        "elapsed_seconds": round(time.time() - started_at, 2),
+    }
+
+    write_summary_file(args.summary_json_path, summary)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="SafeSpace canonical baseline evaluator")
     parser.add_argument(
@@ -1476,69 +1745,20 @@ def main() -> None:
     )
     parser.add_argument(
         "--env-base-url",
-        default=ENV_BASE_URL,
+        default=None,
         help="Base URL of a running SafeSpace server.",
+    )
+    parser.add_argument(
+        "--summary-json-path",
+        default=None,
+        help="Optional file path for the aggregate evaluation summary JSON.",
     )
     args = parser.parse_args()
 
     try:
-        config_metadata = validate_runtime_configuration(args.mode)
+        asyncio.run(_async_main(args))
     except InferenceConfigurationError as exc:
         raise SystemExit(str(exc)) from exc
-
-    if args.validate_config:
-        print(json.dumps(config_metadata, indent=2))
-        return
-
-    agent = SafeSpaceAgent()
-    started_at = time.time()
-    task_summaries: Dict[str, Any] = {}
-    failure_details: List[Dict[str, Any]] = []
-
-    with SafeSpaceEnv(base_url=args.env_base_url).sync() as env:
-        for task_id in TASK_TO_DIFFICULTY:
-            scenario_ids = load_scenario_ids(task_id, args.mode)
-            if args.limit_per_task is not None:
-                scenario_ids = scenario_ids[: args.limit_per_task]
-            task_summary, task_failures = run_task_evaluation(
-                env,
-                agent,
-                task_id,
-                scenario_ids,
-            )
-            task_summaries[task_id] = task_summary
-            failure_details.extend(task_failures)
-
-    total_scenarios = sum(summary["num_scenarios"] for summary in task_summaries.values())
-    total_reward = sum(summary["total_reward"] for summary in task_summaries.values())
-    total_task_grade = sum(summary["total_task_grade"] for summary in task_summaries.values())
-    failure_count = len(failure_details)
-    manifest = get_benchmark_manifest()
-    summary = {
-        "benchmark_manifest_version": manifest["manifest_version"],
-        "evaluation_mode": args.mode,
-        "env_base_url": args.env_base_url,
-        "model_name": MODEL_NAME,
-        "api_base_url": API_BASE_URL,
-        "api_key_source": config_metadata["api_key_source"],
-        "openai_seed": OPENAI_SEED,
-        "failure_count": failure_count,
-        "successful_scenarios": total_scenarios - failure_count,
-        "failed_scenarios": failure_count,
-        "failure_details": failure_details,
-        "limit_per_task": args.limit_per_task,
-        "tasks": task_summaries,
-        "overall_average_task_grade": (
-            total_task_grade / total_scenarios if total_scenarios else 0.0
-        ),
-        "overall_average_reward": total_reward / total_scenarios if total_scenarios else 0.0,
-        "overall_total_task_grade": total_task_grade,
-        "overall_total_reward": total_reward,
-        "total_scenarios": total_scenarios,
-        "elapsed_seconds": round(time.time() - started_at, 2),
-    }
-
-    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

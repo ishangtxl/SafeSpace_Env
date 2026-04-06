@@ -10,6 +10,7 @@ import pytest
 from pydantic import ValidationError
 
 from content_moderation_env.server.environment import SafeSpaceEnvironment
+from content_moderation_env.server.reward import normalize_public_reward
 from content_moderation_env.models import ModerationAction
 
 
@@ -75,8 +76,9 @@ class TestEnvironmentStep:
         assert obs.actions_taken == 1
         assert "request_author_profile" in obs.action_history
         assert obs.done is False
-        assert obs.reward < 0
+        assert obs.reward == pytest.approx(normalize_public_reward(-0.03))
         assert obs.reward_breakdown is not None
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(-0.03)
 
     def test_duplicate_investigation_warning(self):
         """Test duplicate investigation gives warning."""
@@ -90,8 +92,10 @@ class TestEnvironmentStep:
         obs = env.step(ModerationAction(action_type="request_author_profile"))
 
         assert "already retrieved" in obs.feedback.lower() or "wasted" in obs.feedback.lower()
-        assert obs.reward < 0
+        assert obs.reward == pytest.approx(normalize_public_reward(-0.05))
         assert obs.actions_taken == 2
+        assert obs.reward_breakdown is not None
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(-0.05)
 
     def test_decide_action_ends_episode(self):
         """Test decide action ends episode."""
@@ -108,8 +112,9 @@ class TestEnvironmentStep:
         ))
 
         assert obs.done is True
-        assert obs.reward > 0
+        assert 0.0 <= obs.reward <= 1.0
         assert obs.reward_breakdown is not None
+        assert obs.reward_breakdown.raw_applied_score > 0
 
     def test_decide_requires_fields(self):
         """Test decide action requires all fields."""
@@ -125,8 +130,10 @@ class TestEnvironmentStep:
 
         assert obs.done is False
         assert "missing required fields" in obs.feedback.lower()
-        assert obs.reward < 0
+        assert obs.reward == pytest.approx(normalize_public_reward(-0.06))
         assert obs.actions_taken == 1
+        assert obs.reward_breakdown is not None
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(-0.06)
 
     def test_invalid_action_type(self):
         """Test invalid action types are rejected by the model."""
@@ -142,7 +149,9 @@ class TestEnvironmentStep:
 
         assert obs.done is False
         assert "invalid" in obs.feedback.lower()
-        assert obs.reward < 0
+        assert obs.reward == pytest.approx(normalize_public_reward(-0.06))
+        assert obs.reward_breakdown is not None
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(-0.06)
 
 
 class TestEnvironmentState:
@@ -179,6 +188,7 @@ class TestEnvironmentState:
 
         assert env.state.decision_made is True
         assert env.state.episode_reward > 0
+        assert env.state.raw_episode_reward > 0
 
     def test_hard_case_rewards_needed_context(self):
         """Test hard scenarios reward useful context gathering."""
@@ -187,9 +197,10 @@ class TestEnvironmentState:
 
         obs = env.step(ModerationAction(action_type="request_author_violations"))
 
-        assert obs.reward > 0
+        assert obs.reward == pytest.approx(normalize_public_reward(0.05))
         assert obs.reward_breakdown is not None
         assert obs.reward_breakdown.is_needed is True
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(0.05)
 
     def test_budget_exhaustion_without_decision_is_terminal(self):
         """Test repeated wasted actions end the episode with a penalty."""
@@ -202,9 +213,10 @@ class TestEnvironmentState:
 
         assert obs is not None
         assert obs.done is True
-        assert obs.reward < 0
+        assert 0.0 <= obs.reward <= 1.0
         assert obs.reward_breakdown is not None
         assert obs.reward_breakdown.no_decision["reason"] == "no_decision_made"
+        assert obs.reward_breakdown.no_decision["raw_penalty"] == pytest.approx(-0.15)
 
     def test_three_useful_context_requests_reach_new_trajectory_cap(self):
         """Three needed context requests should fully benefit from the higher cap."""
@@ -216,9 +228,16 @@ class TestEnvironmentState:
         obs = env.step(ModerationAction(action_type="request_similar_precedents"))
 
         assert obs.reward_breakdown is not None
-        assert obs.reward_breakdown.applied_score == pytest.approx(0.05)
-        assert obs.reward_breakdown.trajectory_total == pytest.approx(0.15)
-        assert env.state.episode_reward == pytest.approx(0.15)
+        assert obs.reward_breakdown.applied_score == pytest.approx(
+            normalize_public_reward(0.05)
+        )
+        assert obs.reward_breakdown.raw_applied_score == pytest.approx(0.05)
+        assert obs.reward_breakdown.trajectory_total == pytest.approx(
+            normalize_public_reward(0.15)
+        )
+        assert obs.reward_breakdown.raw_trajectory_total == pytest.approx(0.15)
+        assert env.state.episode_reward == pytest.approx(normalize_public_reward(0.15))
+        assert env.state.raw_episode_reward == pytest.approx(0.15)
 
 
 class TestScenarioDiversity:

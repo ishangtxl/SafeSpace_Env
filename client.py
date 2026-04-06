@@ -144,6 +144,8 @@ class SafeSpaceEnv(
                 obs_data["grade_breakdown"]
             )
 
+        reward_value = obs_data.get("reward", payload.get("reward"))
+
         observation = ModerationObservation(
             content_item=content_item,
             trigger_info=trigger_info,
@@ -156,7 +158,7 @@ class SafeSpaceEnv(
             feedback=obs_data.get("feedback", ""),
             error_code=obs_data.get("error_code"),
             done=payload.get("done", False),
-            reward=payload.get("reward"),
+            reward=reward_value,
             reward_breakdown=reward_breakdown,
             task_grade=obs_data.get("task_grade"),
             grade_breakdown=grade_breakdown,
@@ -165,7 +167,7 @@ class SafeSpaceEnv(
 
         return StepResult(
             observation=observation,
-            reward=payload.get("reward"),
+            reward=reward_value,
             done=payload.get("done", False),
         )
 
@@ -191,6 +193,7 @@ class SafeSpaceEnv(
             context_requested=payload.get("context_requested", []),
             decision_made=payload.get("decision_made", False),
             episode_reward=payload.get("episode_reward", 0.0),
+            raw_episode_reward=payload.get("raw_episode_reward", 0.0),
             done=payload.get("done", False),
             last_error_code=payload.get("last_error_code"),
         )

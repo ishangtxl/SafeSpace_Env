@@ -19,6 +19,15 @@ tags:
 
 SafeSpace is a real-world OpenEnv environment for training and evaluating agents on content moderation workflows. The agent does not just classify text. It receives a reported post, decides whether to investigate additional evidence under an action budget, and then makes a structured moderation decision with a confidence score and cited factors.
 
+## Project Snapshot
+
+- Real-world task: multi-step social platform content moderation, not a toy game
+- Full OpenEnv contract: typed `step()` / `reset()` / `state()` API with `openenv.yaml`
+- Three graded tasks: easy, medium, and hard moderation workflows
+- Meaningful reward shaping: partial-progress trajectory reward plus terminal quality reward
+- Reproducible baseline: `inference.py` uses the OpenAI client and fixed seed
+- Deployment ready: Docker build, OpenEnv validation, HF Space support, and a repository validator script
+
 SafeSpace is designed around the part of moderation that is hard for static classifiers:
 - deciding when the surface text is enough
 - deciding when context changes the answer
@@ -287,28 +296,29 @@ with SafeSpaceEnv(base_url="http://localhost:8000").sync() as env:
     print(result.observation.reward_breakdown)
 ```
 
-## Canonical Baseline Evaluation
+## Reference Evaluation
 
-`inference.py` is the canonical submission evaluator.
+`inference.py` is the reference evaluator shipped with the project.
 
 It:
 
 - uses the OpenAI client for all model calls
 - works with any OpenAI-compatible endpoint exposed through `API_BASE_URL`
-- prefers `OPENAI_API_KEY` and accepts `API_KEY`, `HF_TOKEN`, or `AZURE_OPENAI_API_KEY` as credential fallbacks
+- expects `HF_TOKEN` for the default Hugging Face Router path and still accepts `API_KEY`, `OPENAI_API_KEY`, or `AZURE_OPENAI_API_KEY` as fallbacks
 - evaluates through the real `SafeSpaceEnv` client/server path
 - uses a fixed `OPENAI_SEED` by default for reproducible model calls
 - validates the benchmark manifest before evaluation
 - supports deterministic canonical and full-dataset modes
 - supports `--limit-per-task` for cheap smoke runs and `--validate-config` for preflight checks
-- emits a structured JSON summary
+- emits compact `[START]`, `[STEP]`, and `[END]` marker logs on stdout
+- writes the aggregate JSON summary only when `--summary-json-path` is provided
 
 ### Required environment variables
 
 ```bash
 export API_BASE_URL="<OpenAI-compatible endpoint>"
 export MODEL_NAME="<model-id>"
-export OPENAI_API_KEY="<api-key>"
+export HF_TOKEN="<api-key>"
 ```
 
 Accepted credential fallbacks:
@@ -316,7 +326,7 @@ Accepted credential fallbacks:
 ```bash
 export API_KEY="<api-key>"
 # or
-export HF_TOKEN="<api-key>"
+export OPENAI_API_KEY="<api-key>"
 # or
 export AZURE_OPENAI_API_KEY="<api-key>"
 ```
@@ -324,14 +334,22 @@ export AZURE_OPENAI_API_KEY="<api-key>"
 Additional optional variables:
 
 ```bash
-export ENV_BASE_URL="http://localhost:8000"
 export OPENAI_SEED="7"
+export ENV_BASE_URL="http://localhost:8000"
+export LOCAL_IMAGE_NAME="safespace:latest"
 ```
 
-### Run the canonical submission baseline
+Connection precedence:
+
+- if `--env-base-url` is passed, use that server
+- else if `ENV_BASE_URL` is set, use that server
+- else if `LOCAL_IMAGE_NAME` is set, launch the local Docker image through OpenEnv
+- else fall back to `http://localhost:8000`
+
+### Run the canonical reference baseline
 
 ```bash
-python inference.py --mode canonical
+python inference.py --mode canonical --summary-json-path artifacts/run-summary.json
 ```
 
 ### Validate config and benchmark assets before running
@@ -343,30 +361,46 @@ python inference.py --validate-config
 ### Run the full dataset evaluation
 
 ```bash
-python inference.py --mode full
+python inference.py --mode full --summary-json-path artifacts/run-summary.json
 ```
 
-The script prints a JSON report with:
+The script emits stdout in the following single-line format:
+
+```text
+[START] task=<task_name> env=safespace model=<model_name>
+[STEP] step=<n> action=<action_str> reward=<0.00> done=<true|false> error=<msg|null>
+[END] success=<true|false> steps=<n> score=<score> rewards=<r1,r2,...,rn>
+```
+
+When `--summary-json-path` is set, the file contains:
 
 - evaluation mode
 - benchmark manifest version
 - model name
+- connection mode and target
 - total scenario count
 - successful scenario count
 - failure count
 - failed scenario count
 - `failure_details` for any zero-scored episodes
 - `overall_average_task_grade` as the headline benchmark metric
-- `overall_average_reward` as secondary RL/debugging telemetry
-- per-task `average_task_grade` and `average_reward`
+- `overall_average_reward` as normalized public reward telemetry
+- `overall_average_raw_reward` as the preserved raw RL/debugging telemetry
+- per-task `average_task_grade`, `average_reward`, and `average_raw_reward`
 - decision distribution per task
+
+### Public Score Semantics
+
+- Final episode `score` in the `[END]` line is always `task_grade`, which already lives in `[0.0, 1.0]`.
+- Public `reward` values are normalized into `[0.0, 1.0]` for compatibility with tooling that expects normalized reward signals.
+- Raw signed reward values are preserved in the JSON summary, state, and reward breakdown payloads for debugging and RL analysis.
 
 ### Canonical vs full evaluation
 
 The two supported modes serve different purposes:
 
 - `canonical` evaluates a fixed 60-scenario benchmark defined in `server/data/benchmark_manifest.json`.
-- `canonical` is the score we treat as the submission headline because it is fast, comparable across reruns, and stable in task composition.
+- `canonical` is the score we treat as the headline benchmark because it is fast, comparable across reruns, and stable in task composition.
 - `full` evaluates the entire current corpus of 367 scenarios.
 - `full` is intended as a broader stress test and regression suite; it is slower and more expensive, but gives a better picture of full-corpus generalization.
 - `full` runs the canonical split first and then the remainder of the corpus, so `--limit-per-task` is useful for cheap smoke checks.
@@ -377,13 +411,13 @@ The primary reported metric is `overall_average_task_grade`.
 The secondary RL/debugging metric is `overall_average_reward`.
 Use `canonical` for the headline benchmark and `full` for broader regression coverage.
 
-### README-stamped canonical baseline
+### Current Reference Baselines
 
-Reference artifact:
+Primary reference artifact:
 
 `artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
 
-Canonical benchmark results below use `gpt-5.4` via an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7` on benchmark manifest version `2026-04-03.2`. This reference run completed with `0` failed episodes.
+This is the main headline reference run. It uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7` on benchmark manifest version `2026-04-03.2`. This run completed with `0` failed episodes on the current public reward surface.
 
 ```bash
 export API_BASE_URL="<Azure AI Foundry OpenAI-compatible endpoint>"
@@ -391,18 +425,32 @@ export MODEL_NAME="gpt-5.4"
 export AZURE_OPENAI_API_KEY="<provider key>"
 export OPENAI_SEED="7"
 export ENV_BASE_URL="http://localhost:8000"
-python inference.py --mode canonical
+python inference.py --mode canonical \
+  --summary-json-path artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json
 ```
 
-| Task | Difficulty | Avg Task Grade | Avg Reward | Decision Distribution |
-|------|------------|----------------|------------|----------------------|
-| `clear_violations` | easy | **0.8244** | `0.7200` | remove: 10, approve: 10 |
-| `context_dependent` | medium | **0.4935** | `0.3643` | approve: 11, warn: 5, remove: 4 |
-| `policy_edge_cases` | hard | **0.4497** | `0.3575` | approve: 7, escalate: 5, warn: 5, remove: 3 |
+| Task | Difficulty | Avg Task Grade | Avg Reward | Avg Raw Reward | Decision Distribution |
+|------|------------|----------------|------------|----------------|----------------------|
+| `clear_violations` | easy | **0.8244** | `0.7760` | `0.7200` | remove: 10, approve: 10 |
+| `context_dependent` | medium | **0.4934** | `0.4914` | `0.3643` | approve: 11, warn: 5, remove: 4 |
+| `policy_edge_cases` | hard | **0.4213** | `0.4695` | `0.3369` | approve: 8, escalate: 5, warn: 4, remove: 3 |
 
-**Overall average task grade: `0.5892`**
+**Overall average task grade: `0.5797`**
 
-**Overall average reward: `0.4806`**
+**Overall average reward: `0.5790`**
+
+**Overall average raw reward: `0.4737`**
+
+Secondary open-weight reference artifact:
+
+`artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
+
+This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `HF_TOKEN` and `OPENAI_SEED=7`.
+
+| Model | Avg Task Grade | Avg Reward | Avg Raw Reward | Failed Episodes |
+|-------|----------------|------------|----------------|-----------------|
+| `gpt-5.4` | **0.5797** | `0.5790` | `0.4737` | `0` |
+| `Qwen/Qwen2.5-72B-Instruct` | `0.4775` | `0.5098` | `0.3873` | `0` |
 
 ## Validation and Tests
 
@@ -411,7 +459,10 @@ Run the full verification stack from the repository root containing `openenv.yam
 ```bash
 scripts/preflight.sh
 python scripts/check_package_assets.py
+scripts/validate-submission.sh https://<your-space>.hf.space .
 ```
+
+The validator script is included for convenience when checking a live Space, local Docker build, and `openenv validate` status before publishing changes.
 
 Benchmark statistics helper:
 
@@ -457,6 +508,7 @@ content_moderation_env/
 ├── README.md
 ├── scripts/
 │   ├── check_package_assets.py
+│   ├── validate-submission.sh
 ├── server/
 │   ├── app.py
 │   ├── environment.py

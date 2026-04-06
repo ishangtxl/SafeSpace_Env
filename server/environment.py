@@ -43,6 +43,8 @@ from .reward import (
     compute_invalid_action_penalty,
     compute_no_decision_penalty,
     compute_reward,
+    normalize_public_reward,
+    normalize_reward_breakdown,
 )
 from .scenarios import get_task_id_for_scenario, load_scenario
 
@@ -68,6 +70,7 @@ class SafeSpaceEnvironment(Environment):
         self._gathered_context = GatheredContext()
         self._action_history: list[str] = []
         self._trajectory_reward_total = 0.0
+        self._raw_episode_reward_total = 0.0
         self._episode_done = False
         self._last_reward_breakdown: Optional[Dict[str, Any]] = None
         self._last_grade_breakdown: Optional[Dict[str, Any]] = None
@@ -98,12 +101,14 @@ class SafeSpaceEnvironment(Environment):
             context_requested=[],
             decision_made=False,
             episode_reward=0.0,
+            raw_episode_reward=0.0,
             done=False,
             last_error_code=None,
         )
         self._gathered_context = GatheredContext()
         self._action_history = []
         self._trajectory_reward_total = 0.0
+        self._raw_episode_reward_total = 0.0
         self._episode_done = False
         self._last_reward_breakdown = None
         self._last_grade_breakdown = None
@@ -191,7 +196,9 @@ class SafeSpaceEnvironment(Environment):
         """Build an observation from the current internal state."""
         typed_reward_breakdown = None
         if reward_breakdown is not None:
-            typed_reward_breakdown = RewardBreakdown.model_validate(reward_breakdown)
+            typed_reward_breakdown = RewardBreakdown.model_validate(
+                normalize_reward_breakdown(reward_breakdown)
+            )
 
         typed_grade_breakdown = None
         if grade_breakdown is not None:
@@ -209,16 +216,31 @@ class SafeSpaceEnvironment(Environment):
             feedback=feedback,
             error_code=error_code,
             done=done,
-            reward=reward,
+            reward=self._normalize_step_reward(reward),
             reward_breakdown=typed_reward_breakdown,
             task_grade=task_grade,
             grade_breakdown=typed_grade_breakdown,
             metadata={
                 "episode_reward": self._state.episode_reward,
+                "raw_episode_reward": self._raw_episode_reward_total,
                 "trajectory_reward_total": self._trajectory_reward_total,
                 "decision_made": self._state.decision_made,
+                "raw_reward": reward,
             },
         )
+
+    def _sync_public_reward_state(self) -> None:
+        """Expose normalized reward fields on the public state model."""
+        self._state.raw_episode_reward = self._raw_episode_reward_total
+        if self._state.step_count == 0 and self._raw_episode_reward_total == 0.0:
+            self._state.episode_reward = 0.0
+            return
+        normalized_total = normalize_public_reward(self._raw_episode_reward_total)
+        self._state.episode_reward = 0.0 if normalized_total is None else normalized_total
+
+    def _normalize_step_reward(self, reward: Optional[float]) -> Optional[float]:
+        """Normalize a per-step reward for the public observation surface."""
+        return normalize_public_reward(reward)
 
     def _consume_budget(self, action_label: str) -> None:
         """Consume one non-terminal action from the budget."""
@@ -239,28 +261,30 @@ class SafeSpaceEnvironment(Environment):
         applied_delta = next_total - previous_total
         self._trajectory_reward_total = next_total
 
-        self._state.episode_reward = max(
+        self._raw_episode_reward_total = max(
             MIN_EPISODE_REWARD,
             min(MAX_EPISODE_REWARD, next_total),
         )
+        self._sync_public_reward_state()
         enriched = {
             **breakdown,
             "requested_score": raw_delta,
             "applied_score": applied_delta,
             "trajectory_total": self._trajectory_reward_total,
-            "episode_total": self._state.episode_reward,
+            "episode_total": self._raw_episode_reward_total,
         }
         return applied_delta, enriched
 
     def _apply_episode_delta(self, delta: float) -> Tuple[float, float]:
         """Apply a bounded delta to the cumulative episode reward."""
-        current_total = self._state.episode_reward
+        current_total = self._raw_episode_reward_total
         next_total = max(
             MIN_EPISODE_REWARD,
             min(MAX_EPISODE_REWARD, current_total + delta),
         )
         applied_delta = next_total - current_total
-        self._state.episode_reward = next_total
+        self._raw_episode_reward_total = next_total
+        self._sync_public_reward_state()
         return applied_delta, next_total
 
     def _finalize_if_budget_exhausted(

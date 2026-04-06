@@ -1,6 +1,6 @@
 # SafeSpace Design Document
 
-This document explains the design decisions behind SafeSpace, a content moderation RL environment. It serves as both internal reference and an artifact demonstrating thoughtful, principled design.
+This document explains the design decisions behind SafeSpace, a content moderation RL environment. It serves as both an internal reference and a public explanation of the benchmark’s design choices.
 
 ---
 
@@ -32,6 +32,8 @@ Investigation actions receive immediate feedback:
 - `-0.06` for invalid actions (penalizes malformed inputs)
 
 **Design choice:** Trajectory rewards are capped at `±0.15` total to prevent them from overwhelming terminal reward. The trajectory signal teaches search strategy without dominating the moderation quality signal.
+
+**Public API note:** Reward values exposed through `step()`, `state()`, and reward-breakdown payloads are normalized into `[0, 1]` for compatibility with tooling that expects normalized reward signals. The original signed reward values remain available through `raw_*` fields for RL analysis and debugging.
 
 ### Score Table Alignment
 
@@ -232,13 +234,32 @@ We evaluate agents on:
 2. **Per-decision-type accuracy**: Ensures agents learn all four outcomes
 3. **Calibration curve**: Confidence vs. actual correctness
 
-### Baseline Expectations
+### Reference Runs
 
-| Tier | Expected Baseline | Rationale |
-|------|-------------------|-----------|
-| Easy | 0.90-0.92 | Canonical easy cases should be highly solvable for a strong frontier model |
-| Medium | 0.60-0.63 | Correct context selection matters and wrong confidence still hurts |
-| Hard | 0.56-0.59 | Hard cases remain meaningfully challenging despite a curated canonical split |
+Primary reference artifact:
+
+`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
+
+This run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7` on manifest version `2026-04-03.2`.
+
+| Tier | Avg Task Grade | Avg Reward | Avg Raw Reward |
+|------|----------------|------------|----------------|
+| Easy | 0.8244 | 0.7760 | 0.7200 |
+| Medium | 0.4934 | 0.4914 | 0.3643 |
+| Hard | 0.4213 | 0.4695 | 0.3369 |
+
+Secondary open-weight comparison artifact:
+
+`artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
+
+This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `OPENAI_SEED=7`.
+
+| Model | Avg Task Grade | Avg Reward | Avg Raw Reward |
+|-------|----------------|------------|----------------|
+| `gpt-5.4` | 0.5797 | 0.5790 | 0.4737 |
+| `Qwen/Qwen2.5-72B-Instruct` | 0.4775 | 0.5098 | 0.3873 |
+
+These numbers are reference points, not normative targets. The benchmark remains intentionally challenging on context-dependent and hard policy-review cases, and score movement should be interpreted relative to the same manifest and inference setup.
 
 ---
 
