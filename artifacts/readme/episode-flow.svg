@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img" aria-labelledby="title desc">
+  <title id="title">SafeSpace episode flow</title>
+  <desc id="desc">A SafeSpace moderation episode flows from reset, to observation review, to optional context gathering, to final decision, then deterministic reward and grading.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fbff; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 20; ry: 20; }
+      .accent { fill: #eff6ff; stroke: #93c5fd; stroke-width: 2; rx: 20; ry: 20; }
+      .eyebrow { font: 700 12px Arial, Helvetica, sans-serif; fill: #2563eb; letter-spacing: 0.08em; }
+      .hero { font: 700 18px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .step { font: 700 16px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      .body { font: 400 12px Arial, Helvetica, sans-serif; fill: #334155; }
+      .footer { font: 400 13px Arial, Helvetica, sans-serif; fill: #334155; }
+      .arrow { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="390" rx="24" ry="24"/>
+
+  <text x="40" y="42" class="hero">SafeSpace episode flow</text>
+  <text x="40" y="66" class="footer">One reported post becomes a budgeted moderation episode with optional evidence gathering and deterministic grading.</text>
+
+  <rect x="40" y="104" width="208" height="188" class="panel"/>
+  <text x="64" y="132" class="eyebrow">STEP 1</text>
+  <text x="64" y="170" class="step">reset()</text>
+  <text x="64" y="208" class="body">Sample or select</text>
+  <text x="64" y="230" class="body">a scenario.</text>
+  <text x="64" y="252" class="body">Return post, trigger info,</text>
+  <text x="64" y="278" class="body">policy, and empty context.</text>
+
+  <rect x="268" y="104" width="208" height="188" class="accent"/>
+  <text x="292" y="132" class="eyebrow">STEP 2</text>
+  <text x="292" y="170" class="step">inspect observation</text>
+  <text x="292" y="208" class="body">Review the reported post,</text>
+  <text x="292" y="230" class="body">the trigger path, and the</text>
+  <text x="292" y="252" class="body">remaining action budget.</text>
+  <text x="292" y="278" class="body">Easy cases can stop here.</text>
+
+  <rect x="496" y="104" width="208" height="188" class="panel"/>
+  <text x="520" y="132" class="eyebrow">STEP 3</text>
+  <text x="520" y="170" class="step">request context</text>
+  <text x="520" y="208" class="body">Choose 0-2 focused</text>
+  <text x="520" y="230" class="body">evidence requests.</text>
+  <text x="520" y="252" class="body">Useful requests add reward.</text>
+  <text x="520" y="278" class="body">Wasteful ones are penalized.</text>
+
+  <rect x="724" y="104" width="208" height="188" class="accent"/>
+  <text x="748" y="132" class="eyebrow">STEP 4</text>
+  <text x="748" y="170" class="step">decide</text>
+  <text x="748" y="208" class="body">Submit approve, remove,</text>
+  <text x="748" y="230" class="body">warn, or escalate with</text>
+  <text x="748" y="252" class="body">violation, severity,</text>
+  <text x="748" y="278" class="body">confidence, and factors.</text>
+
+  <rect x="952" y="104" width="208" height="188" class="panel"/>
+  <text x="976" y="132" class="eyebrow">STEP 5</text>
+  <text x="976" y="170" class="step">reward + grade</text>
+  <text x="976" y="208" class="body">Return reward breakdown,</text>
+  <text x="976" y="230" class="body">task grade, and final state.</text>
+  <text x="976" y="252" class="body">The grader is deterministic.</text>
+  <text x="976" y="278" class="body">No LLM judge is involved.</text>
+
+  <path d="M 248 198 H 268" class="arrow"/>
+  <path d="M 476 198 H 496" class="arrow"/>
+  <path d="M 704 198 H 724" class="arrow"/>
+  <path d="M 932 198 H 952" class="arrow"/>
+
+  <text x="40" y="344" class="footer">Reward logic teaches search strategy across the whole episode, not just the final answer.</text>
+</svg>

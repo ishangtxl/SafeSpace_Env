@@ -60,9 +60,9 @@ OPENAI_SEED = int(os.getenv("OPENAI_SEED", "7"))
 def resolve_api_key_and_source() -> tuple[Optional[str], Optional[str]]:
     """Resolve API credentials using the documented precedence order."""
     for env_var in (
+        "HF_TOKEN",
         "OPENAI_API_KEY",
         "API_KEY",
-        "HF_TOKEN",
         "AZURE_OPENAI_API_KEY",
     ):
         value = os.getenv(env_var)

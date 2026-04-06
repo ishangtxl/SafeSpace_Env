@@ -51,6 +51,26 @@ def _run_command(command: list[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
+def _ensure_pip_available() -> None:
+    """Ensure the active interpreter can execute ``python -m pip``."""
+    pip_check = [sys.executable, "-m", "pip", "--version"]
+    try:
+        _run_command(pip_check)
+        return
+    except subprocess.CalledProcessError:
+        pass
+
+    ensurepip_command = [
+        sys.executable,
+        "-m",
+        "ensurepip",
+        "--upgrade",
+        "--default-pip",
+    ]
+    _run_command(ensurepip_command)
+    _run_command(pip_check)
+
+
 def _verify_installed_import(install_dir: Path) -> int:
     """Import the installed wheel and validate the scenario corpus from disk."""
     command = [
@@ -71,6 +91,8 @@ def _verify_installed_import(install_dir: Path) -> int:
 
 def main() -> None:
     """Build a wheel, install it into a temp target, and verify asset presence."""
+    _ensure_pip_available()
+
     with tempfile.TemporaryDirectory(prefix="safespace-package-") as tmpdir:
         temp_root = Path(tmpdir)
         source_copy = _copy_source_tree(temp_root)

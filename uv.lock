@@ -1600,9 +1600,10 @@ core = [
 
 [[package]]
 name = "openenv-safespace"
-version = "0.1.0"
+version = "0.2.1"
 source = { editable = "." }
 dependencies = [
+    { name = "openai" },
     { name = "openenv-core", extra = ["core"] },
 ]
 
@@ -1614,7 +1615,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "openenv-core", extras = ["core"], specifier = ">=0.2.2" },
+    { name = "openai", specifier = ">=1.0.0" },
+    { name = "openenv-core", extras = ["core"], specifier = ">=0.2.3,<0.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0.0" },
 ]

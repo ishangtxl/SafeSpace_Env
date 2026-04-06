@@ -62,6 +62,16 @@ find_python() {
   command -v python3 2>/dev/null || command -v python 2>/dev/null || return 1
 }
 
+ensure_python_pip() {
+  if "$PYTHON_BIN" -m pip --version >/dev/null 2>&1; then
+    return 0
+  fi
+
+  printf '\nBootstrapping pip for %s via ensurepip...\n' "$PYTHON_BIN"
+  "$PYTHON_BIN" -m ensurepip --upgrade --default-pip >/dev/null
+  "$PYTHON_BIN" -m pip --version >/dev/null
+}
+
 cleanup() {
   if command -v docker >/dev/null 2>&1; then
     docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
@@ -71,6 +81,7 @@ cleanup() {
 trap cleanup EXIT
 
 PYTHON_BIN="$(find_python)"
+ensure_python_pip
 PYTEST_BIN="$(find_bin pytest)"
 OPENENV_BIN="$(find_bin openenv)"
 DOCKER_BIN="$(find_bin docker || true)"
@@ -98,7 +109,7 @@ printf '\n[4/9] Running package asset smoke check...\n'
 printf '\n[5/9] Validating inference config contract...\n'
 API_BASE_URL="https://example.invalid/v1" \
 MODEL_NAME="test-model" \
-API_KEY="test-key" \
+HF_TOKEN="test-key" \
 ENV_BASE_URL="http://127.0.0.1:${PORT}" \
   "$PYTHON_BIN" inference.py --validate-config
 

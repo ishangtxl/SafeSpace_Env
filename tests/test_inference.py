@@ -172,7 +172,7 @@ def test_parse_json_response_handles_wrapped_json():
 
 
 def test_resolve_api_key_and_source_prefers_documented_precedence(monkeypatch):
-    """Credential resolution should prefer OPENAI_API_KEY, then API_KEY, then HF_TOKEN."""
+    """Credential resolution should prefer HF_TOKEN, then OpenAI-compatible fallbacks."""
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("API_KEY", raising=False)
     monkeypatch.delenv("HF_TOKEN", raising=False)
@@ -181,15 +181,15 @@ def test_resolve_api_key_and_source_prefers_documented_precedence(monkeypatch):
     monkeypatch.setenv("HF_TOKEN", "hf-token")
     monkeypatch.setenv("API_KEY", "api-token")
     monkeypatch.setenv("OPENAI_API_KEY", "openai-token")
+    assert resolve_api_key_and_source() == ("hf-token", "HF_TOKEN")
+
+    monkeypatch.delenv("HF_TOKEN")
     assert resolve_api_key_and_source() == ("openai-token", "OPENAI_API_KEY")
 
     monkeypatch.delenv("OPENAI_API_KEY")
     assert resolve_api_key_and_source() == ("api-token", "API_KEY")
 
     monkeypatch.delenv("API_KEY")
-    assert resolve_api_key_and_source() == ("hf-token", "HF_TOKEN")
-
-    monkeypatch.delenv("HF_TOKEN")
     monkeypatch.setenv("AZURE_OPENAI_API_KEY", "azure-token")
     assert resolve_api_key_and_source() == ("azure-token", "AZURE_OPENAI_API_KEY")
 
