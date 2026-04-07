@@ -6744,48 +6744,55 @@
     "category": "coded_hate",
     "content_item": {
       "post_id": "p_61801",
-      "text": "Check the early life section, it tells you everything you need to know",
-      "author_id": "user_beta_974",
+      "text": "You can usually predict how these decisions go once you check the contributor's 'early life' section.",
+      "author_id": "stacktrace_patriot_974",
       "community": "tech",
       "timestamp": "2026-02-20T01:54:00Z",
       "media_type": "text",
       "media_description": null
     },
     "trigger_info": {
+      "trigger_type": "proactive_audit",
+      "audit_reason": "high_risk_user_sample",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": "high_risk_user_sample",
-      "trigger_type": "proactive_audit"
+      "auto_flag_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Just here to chat",
+        "bio": "Open-source maximalist | policy skeptic",
         "account_age_days": 599,
         "follower_count": 1480,
         "post_count": 516,
         "communities": [
-          "crypto",
-          "fitness",
-          "politics",
-          "news"
+          "tech",
+          "startups",
+          "politics"
         ]
       },
-      "author_violations": [],
+      "author_violations": [
+        {
+          "type": "coded_hate",
+          "date": "2026-01-18",
+          "severity": "low",
+          "notes": "Warned for using insinuating dogwhistle phrasing about who controls institutions."
+        }
+      ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Tech communities prohibit coded attacks on protected groups even when phrased as insinuation or in-group slang.",
       "linked_content_summary": null,
       "similar_precedents": [
         {
-          "post": "The phrase 'early life section' was used to imply ethnic conspiracy in a politics thread.",
+          "post": "Check the early life section before you act surprised by the moderation outcome.",
           "decision": "warn",
-          "reason": "Coded hate indicator with enough ambiguity to avoid immediate removal."
+          "reason": "Dogwhistle implication about ethnic background without explicit slur."
         },
         {
-          "post": "A finance thread used 'usual suspects' to insinuate antisemitic stereotypes.",
+          "post": "The usual network is in charge again if you know where to look.",
           "decision": "warn",
-          "reason": "Dogwhistle phrasing toward a protected group."
+          "reason": "Coded hate indicator with ambiguity but clear prejudicial insinuation."
         }
       ],
       "reporter_credibility": null
@@ -6802,7 +6809,7 @@
         "author_violations",
         "similar_precedents"
       ],
-      "explanation": "Generated scenario for category: coded_hate"
+      "explanation": "The surface text is euphemistic rather than explicit, so context matters. Prior coded-language history and similar precedents make this a warn-level coded hate case rather than harmless commentary."
     }
   },
   {
@@ -6944,39 +6951,41 @@
     "category": "satire",
     "content_item": {
       "post_id": "p_97841",
-      "text": "BREAKING: Government Announces Mandatory Happiness Program",
-      "author_id": "user_eta_202",
+      "text": "BREAKING: Ministry proposes a mandatory optimism credit for citizens who smile on public transit.",
+      "author_id": "ironyledger_202",
       "community": "politics",
       "timestamp": "2026-03-08T16:12:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Link to a satirical article styled like a policy news post"
     },
     "trigger_info": {
+      "trigger_type": "user_report",
+      "report_count": 20,
       "report_categories": [
         "misinformation"
       ],
-      "sample_report_reason": null,
+      "sample_report_reason": "People are sharing this as if it is a real policy announcement",
       "original_decision": null,
       "appeal_text": null,
       "audit_reason": null,
-      "trigger_type": "user_report",
-      "report_count": 20
+      "auto_flag_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Tech enthusiast",
+        "bio": "Staff writer at The Irony Ledger | satire and civic parody",
         "account_age_days": 669,
         "follower_count": 4538,
         "post_count": 1886,
         "communities": [
-          "finance",
-          "sports"
+          "politics",
+          "satire",
+          "newsparody"
         ]
       },
       "author_violations": [],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
-      "linked_content_summary": "Linked article is from The Irony Ledger, a satire outlet. The page footer and about box explicitly label the publication as parody, and the article exaggerates events for comedic effect.",
+      "community_rules": "Political discussion allows satire and parody when context or source makes the framing discoverable on inspection.",
+      "linked_content_summary": "The linked article is from The Irony Ledger, whose masthead, about page, and footer all label it as satire. The article exaggerates a fictional policy proposal for comedic effect.",
       "similar_precedents": null,
       "reporter_credibility": null
     },
@@ -6992,7 +7001,7 @@
         "linked_content_summary",
         "author_profile"
       ],
-      "explanation": "Generated scenario for category: satire"
+      "explanation": "The headline is intentionally plausible enough to trigger misinformation reports, but inspection of the linked source and author context shows it is satire. The correct decision is to approve it rather than treat it as factual misinformation."
     }
   },
   {
@@ -7448,37 +7457,43 @@
     "category": "audit_new_account",
     "content_item": {
       "post_id": "p_63137",
-      "text": "Just joined! Here's a link to my website with great deals",
-      "author_id": "user_gamma_883",
+      "text": "Just got to Lisbon and put together a page with hostel discounts, airport transfers, and eSIM deals if anyone wants it.",
+      "author_id": "cityhop_883",
       "community": "travel",
       "timestamp": "2026-03-10T08:04:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Link to a personal travel-deals landing page"
     },
     "trigger_info": {
+      "trigger_type": "proactive_audit",
+      "audit_reason": "new_account_high_activity",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": "new_account_high_activity",
-      "trigger_type": "proactive_audit"
+      "auto_flag_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Full-time dreamer",
-        "account_age_days": 854,
-        "follower_count": 4170,
-        "post_count": 145,
+        "bio": "New backpacking account | posting Europe budget tips",
+        "account_age_days": 2,
+        "follower_count": 8,
+        "post_count": 11,
         "communities": [
-          "crypto",
-          "tech",
-          "music",
-          "travel"
+          "travel",
+          "budgettravel"
         ]
       },
-      "author_violations": [],
+      "author_violations": [
+        {
+          "type": "spam",
+          "date": "2026-03-09",
+          "severity": "low",
+          "notes": "Two identical deal-link posts removed from adjacent travel communities during the same onboarding burst."
+        }
+      ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Travel communities allow firsthand recommendations but prohibit affiliate spam, copied landing pages, and rapid cross-post promotion from new accounts.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -7496,7 +7511,7 @@
         "author_profile",
         "author_violations"
       ],
-      "explanation": "Generated scenario for category: audit_new_account"
+      "explanation": "The surface post could be a genuine travel tip, but the account is brand new and already tied to removed cross-post promo activity. Escalation is appropriate because the case is suspicious and account-level review matters more than a text-only judgment."
     }
   },
   {
@@ -7505,37 +7520,43 @@
     "category": "audit_new_account",
     "content_item": {
       "post_id": "p_67423",
-      "text": "New here but wanted to share this amazing opportunity",
-      "author_id": "veteran_235",
+      "text": "New here, but I made a page bundling my night-photo presets, referral codes, and camera-bag deals in one place if it helps anyone.",
+      "author_id": "shutterdrop_235",
       "community": "photography",
       "timestamp": "2026-03-07T19:18:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Link to a preset and affiliate-link landing page"
     },
     "trigger_info": {
+      "trigger_type": "proactive_audit",
+      "audit_reason": "new_account_high_activity",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": "new_account_high_activity",
-      "trigger_type": "proactive_audit"
+      "auto_flag_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Music lover",
-        "account_age_days": 878,
-        "follower_count": 931,
-        "post_count": 841,
+        "bio": "Brand-new street-photography account",
+        "account_age_days": 1,
+        "follower_count": 3,
+        "post_count": 9,
         "communities": [
-          "politics",
-          "music",
-          "health",
-          "crypto"
+          "photography",
+          "streetphotography"
         ]
       },
-      "author_violations": [],
+      "author_violations": [
+        {
+          "type": "spam",
+          "date": "2026-03-07",
+          "severity": "low",
+          "notes": "Moderator note for posting near-identical affiliate landing pages across gear and editing communities within hours of account creation."
+        }
+      ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Photography communities allow sharing original work and honest gear advice, but mass affiliate promotion from new accounts is escalated for review.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -7553,7 +7574,7 @@
         "author_profile",
         "author_violations"
       ],
-      "explanation": "Generated scenario for category: audit_new_account"
+      "explanation": "The post is borderline because it could be framed as a helpful resource drop, but the one-day-old account and same-day affiliate pattern make it suspicious. Escalation is the correct choice rather than immediate approval or removal."
     }
   },
   {

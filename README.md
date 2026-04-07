@@ -16,25 +16,59 @@ tags:
 
 # SafeSpace: Content Moderation OpenEnv
 
-SafeSpace is an OpenEnv benchmark for multi-step social platform content moderation. Instead of one-shot classification, the agent reviews a reported post, decides whether to gather more evidence under a fixed action budget, and submits a structured moderation decision with calibrated confidence and cited factors.
+SafeSpace is an OpenEnv benchmark for sequential social-platform content moderation. Instead of making a one-shot label prediction, the agent reviews one reported post at a time, decides whether to gather more evidence under a fixed action budget, and then submits a structured moderation decision with calibrated confidence and cited factors.
 
-![OpenEnv 0.2.3](https://img.shields.io/badge/OpenEnv-0.2.3-0B5FFF?style=flat-square)
+![SafeSpace 0.2.1](https://img.shields.io/badge/SafeSpace-0.2.1-0B5FFF?style=flat-square)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square)
 ![Docker Ready](https://img.shields.io/badge/Docker-Ready-2563EB?style=flat-square)
 ![HF Space](https://img.shields.io/badge/Hugging%20Face-Space-FFD21E?style=flat-square)
-![OpenAI Client](https://img.shields.io/badge/OpenAI-Client-10A37F?style=flat-square)
 ![License BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-111827?style=flat-square)
 
-## At a Glance
+Quick links: [HF Space](https://huggingface.co/spaces/Ishangtxl/SafeSpace) · [Run locally](#run-the-environment-locally) · [Run the reference evaluator](#run-the-reference-evaluator) · [Action Space](#action-space) · [Observation Space](#observation-space) · [Example Episode](#example-episode) · [Appendix](#appendix)
 
-- **Real-world task:** sequential content moderation with context gathering, escalation, and calibration
-- **Interface:** typed OpenEnv `step()` / `reset()` / `state()` API backed by FastAPI and a typed client
-- **Benchmark:** 3 graded workflows, a 60-scenario canonical split, and a 367-scenario full corpus
-- **Scoring:** trajectory shaping plus deterministic terminal grading, with no LLM judge in the loop
+## Environment Contract
 
-## Quick Start
+| Item | SafeSpace contract |
+|------|--------------------|
+| Episode unit | One reported content item |
+| Budget | `8` total actions per episode |
+| Action space | `7` investigation actions + `1` terminal `decide` action |
+| Final decisions | `approve`, `remove`, `warn`, `escalate` |
+| Observation | Post content, trigger info, gathered context, platform policy, citable factors, progress fields |
+| Reward | Trajectory shaping during investigation + deterministic terminal grading |
+| Difficulty tiers | `easy`, `medium`, `hard` |
+| Canonical benchmark | `60` scenarios total, `20` per task |
+| Full corpus | `367` scenarios of broader authored + procedural regression coverage |
 
-### 1. Install
+## Environment Description
+
+SafeSpace models moderation as a budgeted evidence-gathering episode over one reported post. The benchmark is designed to test whether an agent can decide when the post alone is enough, when context changes the answer, and when escalation is more appropriate than overconfident guessing.
+
+The benchmark contains three task families:
+
+| Task | Difficulty | Scenarios | What makes it hard |
+|------|------------|-----------|--------------------|
+| `clear_violations` | easy | 117 | Text alone is sufficient; extra investigation wastes reward |
+| `context_dependent` | medium | 140 | One targeted context request often flips the correct decision |
+| `policy_edge_cases` | hard | 110 | Multiple signals conflict; calibration, precedent, and escalation matter |
+
+## Connect To The Deployed Space
+
+Space page: [Ishangtxl/SafeSpace](https://huggingface.co/spaces/Ishangtxl/SafeSpace)
+
+Programmatic endpoint:
+
+```python
+from content_moderation_env import SafeSpaceEnv
+
+with SafeSpaceEnv(base_url="https://ishangtxl-safespace.hf.space").sync() as env:
+    result = env.reset()
+    print(result.observation.content_item.text)
+```
+
+## Run The Environment Locally
+
+### 1. Install dependencies
 
 Preferred:
 
@@ -48,7 +82,9 @@ Alternative:
 pip install -e ".[dev]"
 ```
 
-### 2. Run the full local preflight
+SafeSpace depends on `openenv-core[core]>=0.2.3,<0.3`.
+
+### 2. Run the local preflight
 
 ```bash
 scripts/preflight.sh
@@ -85,93 +121,60 @@ with SafeSpaceEnv(base_url="http://localhost:8000").sync() as env:
     print(result.observation.task_grade)
 ```
 
-### 5. Validate the evaluator contract
+## Run The Reference Evaluator
+
+`inference.py` is the shipped reference evaluator. It uses the real `SafeSpaceEnv` client/server path and supports deterministic `canonical` and `full` evaluation modes.
+
+### Required environment variables
+
+```bash
+export API_BASE_URL="<OpenAI-compatible endpoint>"
+export MODEL_NAME="<model-id>"
+export HF_TOKEN="<api-key>"
+```
+
+Accepted credential fallbacks:
+
+```bash
+export OPENAI_API_KEY="<api-key>"
+# or
+export API_KEY="<api-key>"
+# or
+export AZURE_OPENAI_API_KEY="<api-key>"
+```
+
+Additional optional variables:
+
+```bash
+export OPENAI_SEED="7"
+export ENV_BASE_URL="http://localhost:8000"
+export LOCAL_IMAGE_NAME="safespace:latest"
+```
+
+### Validate evaluator config
 
 ```bash
 python inference.py --validate-config
 ```
 
-## Episode Flow
+### Run the canonical benchmark
 
-![SafeSpace episode flow](artifacts/readme/episode-flow.svg)
-
-### Example Walkthrough: `med_001`
-
-`med_001` looks like a violent threat on the surface:
-
-> "I swear I'm going to kill you next round bro, you're dead meat"
-
-The correct policy is not obvious from the text alone, so the optimal agent:
-
-1. calls `reset(scenario_id="med_001")` and receives the reported post with no gathered context yet
-2. requests `request_thread_context`
-3. sees friendly gaming banter in the thread
-4. submits:
-
-```python
-ModerationAction(
-    action_type="decide",
-    decision="approve",
-    primary_violation="none",
-    severity="none",
-    confidence=0.82,
-    key_factors=["gaming_or_competition_context", "no_violation_found"],
-)
+```bash
+python inference.py --mode canonical --summary-json-path artifacts/run-summary.json
 ```
 
-5. receives both a terminal reward breakdown and a normalized task grade
+### Run the full corpus evaluation
 
-This is the core SafeSpace idea: the agent is rewarded not just for the final answer, but also for deciding *when* to investigate and *what* to investigate.
+```bash
+python inference.py --mode full --summary-json-path artifacts/run-summary.json
+```
 
-## Why This Is an RL Environment, Not a Classifier
+Connection precedence:
 
-A one-shot classifier sees only the post and predicts a label. Real moderation work is sequential:
-
-- moderators inspect the post
-- they choose which context to fetch
-- each fetch has a cost
-- they stop when they have enough evidence
-- they make a decision with a level of certainty
-
-SafeSpace turns that workflow into an RL problem. Investigation actions produce trajectory-level reward, bad investigation habits are penalized, and the terminal reward measures moderation quality, calibration, and efficiency together.
-
-SafeSpace is designed around the parts of moderation that are hard for static classifiers:
-
-- deciding when the surface text is enough
-- deciding when context changes the answer
-- handling asymmetric costs for false negatives vs. over-moderation
-- learning when escalation is better than bluffing
-
-## Environment Description
-
-SafeSpace models moderation as a budgeted episode over one reported content item. The environment is designed to test whether an agent can combine policy understanding with evidence gathering instead of relying on surface-text pattern matching alone.
-
-- **Domain:** social media content moderation
-- **Runtime:** FastAPI / OpenEnv server
-- **Stateful evaluation path:** typed `SafeSpaceEnv` WebSocket client
-- **Public docs path:** typed `/schema` and `/state` endpoints
-- **Decision surface:** `approve`, `remove`, `warn`, `escalate`
-- **Difficulty progression:** easy, medium, hard
-
-## Tasks
-
-| Task | Difficulty | Scenarios | What makes it hard |
-|------|------------|-----------|--------------------|
-| `clear_violations` | easy | 117 | Text alone is usually enough; over-investigation wastes reward |
-| `context_dependent` | medium | 140 | One targeted context request often flips the correct answer |
-| `policy_edge_cases` | hard | 110 | Multiple signals conflict; escalation, calibration, and precedent matter |
-
-### Workflow 1: Direct Triage (`clear_violations`)
-
-Obvious spam, explicit threats, doxxing, clear hate speech, and obvious false positives. The optimal policy usually decides immediately.
-
-### Workflow 2: Context-Dependent Investigation (`context_dependent`)
-
-Cases where one missing fact changes the right answer: gaming banter, appeal review, brigading victims, repeat offenders, or harmful links hidden behind harmless post text.
-
-### Workflow 3: Policy / Escalation Review (`policy_edge_cases`)
-
-Ambiguous cases where the agent must combine multiple evidence sources: satire vs. misinformation, coded harassment, cross-cultural language, public-figure privacy edge cases, and quoted harmful claims used for correction or education.
+- if `--env-base-url` is passed, use that server
+- else if `ENV_BASE_URL` is set, use that server
+- else if `LOCAL_IMAGE_NAME` is set, launch the local Docker image through OpenEnv
+- else fall back to `http://localhost:8000`
 
 ## Action Space
 
@@ -187,7 +190,7 @@ Each investigation action consumes one step from the episode budget.
 | `request_similar_precedents` | prior moderation examples | policy conflict and edge-case consistency |
 | `request_reporter_credibility` | reporter accuracy history | brigading or unreliable reporting |
 
-### Terminal action
+Terminal action:
 
 ```python
 ModerationAction(
@@ -231,8 +234,8 @@ print(obs.gathered_context.thread_context)  # None until requested
 
 - `episode_id`
 - `step_count`
-- `task_id` (canonical benchmark task bucket)
-- `scenario_id` (exact sampled scenario)
+- `task_id`
+- `scenario_id`
 - `difficulty`
 - `trigger_type`
 - `actions_taken`
@@ -240,18 +243,33 @@ print(obs.gathered_context.thread_context)  # None until requested
 - `context_requested`
 - `decision_made`
 - `episode_reward`
+- `raw_episode_reward`
+- `done`
+- `last_error_code`
 
-The public HTTP `/schema` and `/state` endpoints expose the typed `ModerationState` contract directly. The session-backed `SafeSpaceEnv` client remains the canonical benchmark path for live per-episode state during evaluation.
+The public HTTP `/schema` and `/state` endpoints expose the typed `ModerationState` contract directly. The session-backed `SafeSpaceEnv` client remains the canonical benchmark path for live per-episode evaluation.
 
-## Reward and Grading
+## Example Episode
 
-SafeSpace provides reward signal over the full trajectory.
+`med_001` looks like a violent threat on the surface:
 
-The environment optimizes moderation quality first, then explanation quality, efficiency, and calibration.
+> "I swear I'm going to kill you next round bro, you're dead meat"
 
-### Trajectory shaping
+The correct policy is not obvious from the text alone, so a strong agent typically:
 
-Investigation steps receive immediate feedback:
+1. calls `reset(scenario_id="med_001")`
+2. requests `request_thread_context`
+3. sees friendly gaming banter in the thread
+4. submits an `approve` decision with `primary_violation="none"` and factors such as `gaming_or_competition_context`
+5. receives both a terminal reward breakdown and a normalized task grade
+
+This is the core SafeSpace idea: the agent is rewarded not just for the final answer, but also for deciding when to investigate and what to investigate.
+
+## Reward And Grading
+
+SafeSpace optimizes moderation quality first, then explanation quality, efficiency, and calibration.
+
+Trajectory shaping:
 
 | Event | Raw reward |
 |-------|------------|
@@ -261,144 +279,93 @@ Investigation steps receive immediate feedback:
 | invalid action | `-0.06` |
 | budget exhausted before decision | `-0.15` |
 
-The cumulative trajectory signal is capped at `+/-0.15`, which lets 3-context hard cases benefit from all useful investigation steps without dominating the terminal reward.
+The cumulative trajectory signal is capped at `+/-0.15`.
 
-### Terminal reward
-
-When the agent takes `decide`, the final reward combines:
+Terminal reward combines:
 
 - decision reward
 - factor overlap reward
 - efficiency bonus
 - calibration bonus
 
-The decision grader is deterministic and checks:
+All grading is deterministic and programmatic. There are no LLM judges inside the environment.
 
-- decision correctness
-- policy violation correctness
-- severity correctness
-- adjacent-decision partial credit
-- dangerous false negatives
+## Research Grounding
 
-Factor reward uses Jaccard similarity between the predicted factor set and the ground-truth factor set.
+SafeSpace is informed by prior content-moderation and explainability research, including HateXplain, especially around rationale-grounded moderation decisions, ambiguity, and explanation quality. We do not claim direct reuse of HateXplain samples in the current shipped scenario corpus.
 
-### Deterministic graders
+- [OpenEnv documentation](https://meta-pytorch.org/OpenEnv/) and the [OpenEnv Quick Start](https://meta-pytorch.org/OpenEnv/auto_getting_started/) describe the environment interface conventions that SafeSpace follows.
+- [HateXplain: A Benchmark Dataset for Explainable Hate Speech Detection](https://arxiv.org/abs/2012.10289) motivates rationale-aware moderation evaluation and explainability-oriented supervision.
+- [Content moderation on social media: Does it matter who and why moderates hate speech?](https://scholars.cityu.edu.hk/en/publications/content-moderation-on-social-media-does-it-matter-who-and-why-mod/) is relevant to moderation transparency, trust, and explanation framing.
 
-All tasks are graded programmatically. There are no LLM judges inside the environment.
+## Appendix
 
-- `grade_decision()` scores the moderation action against ground truth
-- `grade_factors()` scores cited rationale factors
-- `compute_reward()` combines terminal moderation quality
-- trajectory reward helpers score investigation behavior step by step
-
-Public reward values are normalized into `[0.0, 1.0]` for compatibility with tooling that expects normalized reward signals. Raw signed reward values are preserved through `raw_*` fields for RL analysis and debugging.
-
-## Benchmark Splits and Scenario Stats
+<details>
+<summary><strong>Benchmark splits and corpus statistics</strong></summary>
 
 Canonical benchmark:
 
 - Manifest version: `2026-04-03.2`
-- Canonical split size: 60 scenarios total
-- Canonical composition: 20 scenarios per benchmark task
+- Canonical split size: `60` scenarios total
+- Canonical composition: `20` scenarios per benchmark task
 - Canonical benchmark is the headline evaluation set used by `inference.py --mode canonical`
 
 Full corpus:
 
-- Total scenarios: 367
-- Easy: 117
-- Medium: 140
-- Hard: 110
+- Total scenarios: `367`
+- Easy: `117`
+- Medium: `140`
+- Hard: `110`
+- Includes broader authored extensions plus procedural stress/regression coverage outside the official canonical benchmark
 
 Decision distribution:
 
-- Approve: 139
-- Remove: 133
-- Warn: 54
-- Escalate: 41
+- Approve: `139`
+- Remove: `133`
+- Warn: `54`
+- Escalate: `41`
 
 Trigger distribution:
 
-- `user_report`: 210
-- `auto_flag`: 109
-- `appeal`: 27
-- `proactive_audit`: 21
+- `user_report`: `210`
+- `auto_flag`: `109`
+- `appeal`: `27`
+- `proactive_audit`: `21`
 
 Context-depth distribution:
 
-- `0` context requests needed: 117
-- `1` context request needed: 123
-- `2` context requests needed: 108
-- `3` context requests needed: 19
+- `0` context requests needed: `117`
+- `1` context request needed: `123`
+- `2` context requests needed: `108`
+- `3` context requests needed: `19`
 
-The full corpus includes targeted link, policy-conflict, satire, privacy, and coded-harassment edge cases, while the 60-scenario canonical split remains the headline benchmark for fast and stable comparison.
+</details>
 
-## Reference Evaluation
+<details>
+<summary><strong>Reference evaluation details and baseline results</strong></summary>
 
-`inference.py` is the reference evaluator shipped with the project.
-
-It:
+`inference.py`:
 
 - uses the OpenAI client for all model calls
 - works with any OpenAI-compatible endpoint exposed through `API_BASE_URL`
 - prefers `HF_TOKEN` and still accepts `OPENAI_API_KEY`, `API_KEY`, or `AZURE_OPENAI_API_KEY` as fallbacks
-- evaluates through the real `SafeSpaceEnv` client/server path
 - validates the benchmark manifest before running
-- supports deterministic `canonical` and `full` modes
 - emits compact `[START]`, `[STEP]`, and `[END]` logs on stdout
-- writes aggregate metrics only when `--summary-json-path` is provided
+- writes aggregate metrics when `--summary-json-path` is provided
 
-### Required environment variables
+Public score semantics:
 
-```bash
-export API_BASE_URL="<OpenAI-compatible endpoint>"
-export MODEL_NAME="<model-id>"
-export HF_TOKEN="<api-key>"
-```
+- Final episode `score` in the `[END]` line is always `task_grade`, which lives in `[0.0, 1.0]`
+- Public `reward` values are normalized into `[0.0, 1.0]`
+- Raw signed reward values are preserved in the JSON summary, state, and reward breakdown payloads
 
-Accepted credential fallbacks:
+Canonical vs. full:
 
-```bash
-export OPENAI_API_KEY="<api-key>"
-# or
-export API_KEY="<api-key>"
-# or
-export AZURE_OPENAI_API_KEY="<api-key>"
-```
+- `canonical` evaluates the fixed 60-scenario benchmark in `server/data/benchmark_manifest.json`
+- `full` evaluates the entire current corpus of 367 scenarios
+- `full` runs the canonical split first and then the remainder of the corpus
 
-Additional optional variables:
-
-```bash
-export OPENAI_SEED="7"
-export ENV_BASE_URL="http://localhost:8000"
-export LOCAL_IMAGE_NAME="safespace:latest"
-```
-
-Connection precedence:
-
-- if `--env-base-url` is passed, use that server
-- else if `ENV_BASE_URL` is set, use that server
-- else if `LOCAL_IMAGE_NAME` is set, launch the local Docker image through OpenEnv
-- else fall back to `http://localhost:8000`
-
-### Run the canonical reference baseline
-
-```bash
-python inference.py --mode canonical --summary-json-path artifacts/run-summary.json
-```
-
-### Validate config and benchmark assets before running
-
-```bash
-python inference.py --validate-config
-```
-
-### Run the full dataset evaluation
-
-```bash
-python inference.py --mode full --summary-json-path artifacts/run-summary.json
-```
-
-The script emits stdout in the following single-line format:
+The evaluator emits stdout in the following single-line format:
 
 ```text
 [START] task=<task_name> env=safespace model=<model_name>
@@ -406,56 +373,42 @@ The script emits stdout in the following single-line format:
 [END] success=<true|false> steps=<n> score=<score> rewards=<r1,r2,...,rn>
 ```
 
-When `--summary-json-path` is set, the file records aggregate metrics, per-task breakdowns, decision distributions, runtime metadata, and failure details.
-
-### Public score semantics
-
-- Final episode `score` in the `[END]` line is always `task_grade`, which already lives in `[0.0, 1.0]`.
-- Public `reward` values are normalized into `[0.0, 1.0]` for compatibility with tooling that expects normalized reward signals.
-- Raw signed reward values are preserved in the JSON summary, state, and reward breakdown payloads for debugging and RL analysis.
-
-### Canonical vs. full evaluation
-
-- `canonical` evaluates a fixed 60-scenario benchmark defined in `server/data/benchmark_manifest.json`.
-- `canonical` is the score we treat as the headline benchmark because it is fast, comparable across reruns, and stable in task composition.
-- `full` evaluates the entire current corpus of 367 scenarios.
-- `full` is intended as a broader stress test and regression suite; it is slower and more expensive, but gives a better picture of full-corpus generalization.
-- `full` runs the canonical split first and then the remainder of the corpus, so `--limit-per-task` is useful for cheap smoke checks.
-
-### Current reference baselines
-
 Primary reference artifact:
 
 `artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
 
-This is the main headline reference run. It uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7` on benchmark manifest version `2026-04-03.2`.
+This canonical reference run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7`.
 
 | Task | Difficulty | Avg Task Grade | Avg Reward | Avg Raw Reward | Decision Distribution |
 |------|------------|----------------|------------|----------------|----------------------|
-| `clear_violations` | easy | **0.8244** | `0.7760` | `0.7200` | remove: 10, approve: 10 |
-| `context_dependent` | medium | **0.4934** | `0.4914` | `0.3643` | approve: 11, warn: 5, remove: 4 |
-| `policy_edge_cases` | hard | **0.4213** | `0.4695` | `0.3369` | approve: 8, escalate: 5, warn: 4, remove: 3 |
+| `clear_violations` | easy | `0.8327` | `0.7845` | `0.7306` | remove: 10, approve: 9, warn: 1 |
+| `context_dependent` | medium | `0.4625` | `0.4748` | `0.3435` | approve: 10, warn: 6, remove: 4 |
+| `policy_edge_cases` | hard | `0.5110` | `0.5382` | `0.4228` | escalate: 7, approve: 7, warn: 3, remove: 3 |
 
-**Overall average task grade: `0.5797`**
+Overall:
 
-**Overall average reward: `0.5790`**
+- Avg task grade: `0.6021`
+- Avg reward: `0.5992`
+- Avg raw reward: `0.4990`
+- Failed episodes: `0`
 
-**Overall average raw reward: `0.4737`**
+Secondary open-weight comparison artifact:
 
-Secondary open-weight reference artifact:
+- `artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
 
-`artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
-
-This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `HF_TOKEN` and `OPENAI_SEED=7`.
+This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `OPENAI_SEED=7`.
 
 | Model | Avg Task Grade | Avg Reward | Avg Raw Reward | Failed Episodes |
 |-------|----------------|------------|----------------|-----------------|
-| `gpt-5.4` | **0.5797** | `0.5790` | `0.4737` | `0` |
-| `Qwen/Qwen2.5-72B-Instruct` | `0.4775` | `0.5098` | `0.3873` | `0` |
+| `gpt-5.4` | **`0.6021`** | `0.5992` | `0.4990` | `0` |
+| `Qwen/Qwen2.5-72B-Instruct` | `0.4810` | `0.4994` | `0.3742` | `0` |
 
-## Validation and Deployment
+</details>
 
-Run the full verification stack from the repository root containing `openenv.yaml`, `inference.py`, and `Dockerfile`:
+<details>
+<summary><strong>Validation and deployment</strong></summary>
+
+Run the full verification stack from the repository root:
 
 ```bash
 scripts/preflight.sh
@@ -488,13 +441,16 @@ openenv push --repo-id <username>/safespace
 Submission-path hardening notes:
 
 - the Docker build, health check, and typed-client smoke path are covered by `scripts/preflight.sh`
-- the package asset smoke test now self-heals `pip` with `ensurepip` if the active interpreter does not expose `python -m pip`
+- the package asset smoke test self-heals `pip` with `ensurepip` if the active interpreter does not expose `python -m pip`
 - the canonical evaluation path has been verified under a `2 CPU / 8 GB` container budget and completed well under the hackathon's `20` minute runtime limit
 
-## Project Layout
+</details>
+
+<details>
+<summary><strong>Project layout</strong></summary>
 
 ```text
-content_moderation_env/
+SafeSpace_Env/
 ├── artifacts/
 │   ├── baselines/
 │   └── readme/
@@ -507,6 +463,7 @@ content_moderation_env/
 ├── README.md
 ├── scripts/
 │   ├── check_package_assets.py
+│   ├── generate_scenarios.py
 │   ├── preflight.sh
 │   ├── report_stats.py
 │   └── validate-submission.sh
@@ -520,6 +477,8 @@ content_moderation_env/
 │   └── data/
 └── tests/
 ```
+
+</details>
 
 ## License
 

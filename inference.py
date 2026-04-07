@@ -1663,7 +1663,9 @@ async def _async_main(args: argparse.Namespace) -> None:
     failure_details: List[Dict[str, Any]] = []
 
     client = await create_env_client(args.env_base_url)
-    async with client:
+    try:
+        if hasattr(client, "connect"):
+            await client.connect()
         for task_id in TASK_TO_DIFFICULTY:
             scenario_ids = load_scenario_ids(task_id, args.mode)
             if args.limit_per_task is not None:
@@ -1676,6 +1678,12 @@ async def _async_main(args: argparse.Namespace) -> None:
             )
             task_summaries[task_id] = task_summary
             failure_details.extend(task_failures)
+    finally:
+        try:
+            if hasattr(client, "close"):
+                await client.close()
+        except Exception:
+            pass
 
     total_scenarios = sum(
         summary["num_scenarios"] for summary in task_summaries.values()

@@ -7907,51 +7907,55 @@
     "category": "repeat_offender",
     "content_item": {
       "post_id": "p_97156",
-      "text": "Check out my new product! Use code SALE20 for 20% off",
-      "author_id": "user_theta_557",
-      "community": "movies",
+      "text": "Built a tiny browser extension that color-codes Jira tickets. Free beta link here if anyone wants to try it.",
+      "author_id": "buildinpublic_557",
+      "community": "productivity",
       "timestamp": "2026-03-02T16:14:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Promotional post linking to the author's own product page"
     },
     "trigger_info": {
+      "trigger_type": "auto_flag",
+      "auto_flag_reason": "spam_score: 0.6",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "auto_flag",
-      "auto_flag_reason": "spam_score: 0.6"
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Travel junkie",
-        "account_age_days": 924,
-        "follower_count": 2419,
-        "post_count": 1738,
+        "bio": "Solo dev shipping tiny workflow tools",
+        "account_age_days": 540,
+        "follower_count": 980,
+        "post_count": 233,
         "communities": [
-          "sports"
+          "productivity",
+          "buildinpublic"
         ]
       },
       "author_violations": [
         {
           "type": "spam",
           "date": "2026-03-01",
-          "severity": "medium"
+          "severity": "medium",
+          "notes": "Previous borderline launch post removed after moderator warning."
         },
         {
           "type": "spam",
-          "date": "2026-02-15",
-          "severity": "low"
+          "date": "2026-02-18",
+          "severity": "low",
+          "notes": "Cross-posted the same launch link across multiple communities."
         },
         {
           "type": "spam",
-          "date": "2026-02-01",
-          "severity": "low"
+          "date": "2026-02-05",
+          "severity": "low",
+          "notes": "Repeated self-promotion after being directed to community promo thread."
         }
       ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Productivity communities allow occasional resource sharing, but repeated self-promotion and launch spam are prohibited.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -7967,7 +7971,7 @@
       "context_needed": [
         "author_violations"
       ],
-      "explanation": "Generated scenario for category: repeat_offender"
+      "explanation": "The surface post is plausibly useful and not an instant removal on text alone. The author's repeated prior self-promotional violations make this a repeat-offender spam case, so the correct move is to request violation history and remove it."
     }
   },
   {
@@ -7976,53 +7980,55 @@
     "category": "repeat_offender",
     "content_item": {
       "post_id": "p_99874",
-      "text": "Just launched my course, link in bio!",
-      "author_id": "dev_ops_440",
-      "community": "food",
+      "text": "Turned my interview spreadsheet into a short paid guide. Posting the launch link in case it helps job seekers here.",
+      "author_id": "resumebuilder_440",
+      "community": "careers",
       "timestamp": "2026-03-02T23:21:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Promotional post linking to the author's own product page"
     },
     "trigger_info": {
+      "trigger_type": "auto_flag",
+      "auto_flag_reason": "spam_score: 0.6",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "auto_flag",
-      "auto_flag_reason": "spam_score: 0.6"
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Building cool stuff",
-        "account_age_days": 842,
-        "follower_count": 3662,
-        "post_count": 533,
+        "bio": "Career coach | Hiring manager notes",
+        "account_age_days": 870,
+        "follower_count": 1840,
+        "post_count": 401,
         "communities": [
-          "news",
-          "askexperts",
-          "memes"
+          "careers",
+          "jobsearch"
         ]
       },
       "author_violations": [
         {
           "type": "spam",
           "date": "2026-03-01",
-          "severity": "medium"
+          "severity": "medium",
+          "notes": "Previous paid guide self-promo removed after moderator warning."
         },
         {
           "type": "spam",
-          "date": "2026-02-15",
-          "severity": "low"
+          "date": "2026-02-18",
+          "severity": "low",
+          "notes": "Cross-posted the same launch link across multiple communities."
         },
         {
           "type": "spam",
-          "date": "2026-02-01",
-          "severity": "low"
+          "date": "2026-02-05",
+          "severity": "low",
+          "notes": "Repeated self-promotion after being directed to community promo thread."
         }
       ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Careers communities allow occasional resource sharing, but repeated self-promotion and launch spam are prohibited.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -8038,7 +8044,7 @@
       "context_needed": [
         "author_violations"
       ],
-      "explanation": "Generated scenario for category: repeat_offender"
+      "explanation": "The surface post is plausibly useful and not an instant removal on text alone. The author's repeated prior self-promotional violations make this a repeat-offender spam case, so the correct move is to request violation history and remove it."
     }
   },
   {
@@ -8047,53 +8053,55 @@
     "category": "repeat_offender",
     "content_item": {
       "post_id": "p_41935",
-      "text": "My new ebook is out, grab it while it's hot",
-      "author_id": "ml_expert_173",
-      "community": "askexperts",
+      "text": "Compiled my freelance pitching lessons into a small ebook. Sharing the release link for anyone stuck finding first clients.",
+      "author_id": "pitchcraft_173",
+      "community": "writing",
       "timestamp": "2026-02-15T22:59:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+link",
+      "media_description": "Promotional post linking to the author's own product page"
     },
     "trigger_info": {
+      "trigger_type": "auto_flag",
+      "auto_flag_reason": "spam_score: 0.6",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "auto_flag",
-      "auto_flag_reason": "spam_score: 0.6"
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Travel junkie",
-        "account_age_days": 127,
-        "follower_count": 2141,
-        "post_count": 989,
+        "bio": "Freelance editor and writing mentor",
+        "account_age_days": 612,
+        "follower_count": 1260,
+        "post_count": 317,
         "communities": [
-          "wholesome",
-          "finance",
-          "memes"
+          "writing",
+          "freelance"
         ]
       },
       "author_violations": [
         {
           "type": "spam",
           "date": "2026-03-01",
-          "severity": "medium"
+          "severity": "medium",
+          "notes": "Previous ebook self-promo removed after moderator warning."
         },
         {
           "type": "spam",
-          "date": "2026-02-15",
-          "severity": "low"
+          "date": "2026-02-18",
+          "severity": "low",
+          "notes": "Cross-posted the same launch link across multiple communities."
         },
         {
           "type": "spam",
-          "date": "2026-02-01",
-          "severity": "low"
+          "date": "2026-02-05",
+          "severity": "low",
+          "notes": "Repeated self-promotion after being directed to community promo thread."
         }
       ],
       "thread_context": null,
-      "community_rules": "Standard community guidelines apply.",
+      "community_rules": "Writing communities allow occasional resource sharing, but repeated self-promotion and launch spam are prohibited.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -8109,7 +8117,7 @@
       "context_needed": [
         "author_violations"
       ],
-      "explanation": "Generated scenario for category: repeat_offender"
+      "explanation": "The surface post is plausibly useful and not an instant removal on text alone. The author's repeated prior self-promotional violations make this a repeat-offender spam case, so the correct move is to request violation history and remove it."
     }
   },
   {
@@ -8449,33 +8457,31 @@
     "category": "medical_content",
     "content_item": {
       "post_id": "p_44682",
-      "text": "Here's my experience with medication side effects [detailed medical info]",
-      "author_id": "casual_user_686",
-      "community": "movies",
+      "text": "Week three on sertraline and the nausea finally eased up. Posting the symptom timeline that helped me stay calm.",
+      "author_id": "recoverylog_686",
+      "community": "health",
       "timestamp": "2026-02-16T18:18:00Z",
       "media_type": "text",
       "media_description": null
     },
     "trigger_info": {
+      "trigger_type": "auto_flag",
+      "auto_flag_reason": "medical_content_detected",
       "report_categories": [],
       "sample_report_reason": null,
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "auto_flag",
-      "auto_flag_reason": "medical_content_detected"
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Critical thinker",
+        "bio": "Anxiety-recovery journal | not a clinician",
         "account_age_days": 456,
-        "follower_count": 2110,
-        "post_count": 214,
+        "follower_count": 211,
+        "post_count": 84,
         "communities": [
-          "music",
-          "todayilearned",
-          "art",
-          "finance"
+          "health",
+          "mentalhealth"
         ]
       },
       "author_violations": [],
@@ -8497,7 +8503,7 @@
       "context_needed": [
         "community_rules"
       ],
-      "explanation": "Generated scenario for category: medical_content"
+      "explanation": "The post describes the author's own medication side effects and recovery timeline without instructing others to change treatment. Community rules make this permissible first-person medical context rather than harmful advice."
     }
   },
   {
@@ -8506,36 +8512,38 @@
     "category": "medical_content",
     "content_item": {
       "post_id": "p_92842",
-      "text": "Sharing my surgery recovery journey with photos",
-      "author_id": "ai_master_186",
-      "community": "fashion",
+      "text": "Posting day-by-day photos from my ACL surgery recovery because a few people asked what the swelling looked like after week one.",
+      "author_id": "acljournal_186",
+      "community": "surgeryrecovery",
       "timestamp": "2026-02-28T21:05:00Z",
-      "media_type": "text",
-      "media_description": null
+      "media_type": "text+image",
+      "media_description": "Recovery photos documenting bruising and swelling after knee surgery"
     },
     "trigger_info": {
-      "report_categories": [],
-      "sample_report_reason": null,
+      "trigger_type": "auto_flag",
+      "auto_flag_reason": "medical_content_detected",
+      "report_categories": [
+        "graphic_content"
+      ],
+      "sample_report_reason": "Graphic medical recovery photos",
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "auto_flag",
-      "auto_flag_reason": "medical_content_detected"
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Part-time troll",
+        "bio": "Physical therapy patient sharing recovery milestones",
         "account_age_days": 823,
-        "follower_count": 3443,
-        "post_count": 1388,
+        "follower_count": 344,
+        "post_count": 128,
         "communities": [
-          "tech",
-          "memes"
+          "surgeryrecovery",
+          "physicaltherapy"
         ]
       },
       "author_violations": [],
       "thread_context": null,
-      "community_rules": "Health communities allow first-person recovery stories and educational medical content, but prohibit personalized diagnosis, direct dosage instructions, or advice that overrides a clinician.",
+      "community_rules": "Recovery communities allow medically relevant photos when clearly educational or support-oriented, but prohibit shock posting and gore without context.",
       "linked_content_summary": null,
       "similar_precedents": null,
       "reporter_credibility": null
@@ -8552,7 +8560,7 @@
       "context_needed": [
         "community_rules"
       ],
-      "explanation": "Generated scenario for category: medical_content"
+      "explanation": "The post shares recovery images in a support context for others undergoing similar surgery. Because the content is educational and community-specific rather than gratuitous, the correct decision is to approve it after checking the community rules."
     }
   },
   {
@@ -9183,33 +9191,34 @@
     "category": "trusted_borderline",
     "content_item": {
       "post_id": "p_91512",
-      "text": "This is ridiculous, I can't believe the mods allow this garbage",
-      "author_id": "tech_guru_150",
+      "text": "If you are going to post beginner questions, at least read the pinned guide before dumping this garbage on the feed.",
+      "author_id": "archivist_150",
       "community": "books",
       "timestamp": "2026-03-14T22:30:00Z",
       "media_type": "text",
       "media_description": null
     },
     "trigger_info": {
+      "trigger_type": "user_report",
+      "report_count": 3,
       "report_categories": [
         "toxicity"
       ],
-      "sample_report_reason": null,
+      "sample_report_reason": "Needlessly hostile reply to a new member",
       "original_decision": null,
       "appeal_text": null,
-      "audit_reason": null,
-      "trigger_type": "user_report",
-      "report_count": 3
+      "audit_reason": null
     },
     "available_context": {
       "author_profile": {
-        "bio": "Critical thinker",
-        "account_age_days": 552,
-        "follower_count": 350,
-        "post_count": 470,
+        "bio": "Volunteer reading-list curator | answers newbie threads every week",
+        "account_age_days": 1640,
+        "follower_count": 2860,
+        "post_count": 4210,
         "communities": [
-          "gaming",
-          "travel"
+          "books",
+          "literature",
+          "reading"
         ]
       },
       "author_violations": [],
@@ -9230,7 +9239,7 @@
       "context_needed": [
         "author_profile"
       ],
-      "explanation": "Generated scenario for category: trusted_borderline"
+      "explanation": "The speaker is a trusted contributor, which makes the boundary-setting context relevant, but the phrasing still becomes dismissive and insulting. A warning is appropriate because it is low-severity toxicity rather than a removal-level attack."
     }
   },
   {

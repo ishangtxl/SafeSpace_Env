@@ -2,10 +2,10 @@
   "benchmark_manifest_version": "2026-04-03.2",
   "evaluation_mode": "canonical",
   "connection_mode": "base_url",
-  "env_base_url": "http://127.0.0.1:8012",
+  "env_base_url": "http://localhost:8000",
   "local_image_name": null,
   "model_name": "gpt-5.4",
-  "api_base_url": "<Azure AI Foundry OpenAI-compatible endpoint>",
+  "api_base_url": "AZURE_API_BASE_URL",
   "api_key_source": "AZURE_OPENAI_API_KEY",
   "openai_seed": 7,
   "failure_count": 0,
@@ -17,15 +17,16 @@
     "clear_violations": {
       "task_id": "clear_violations",
       "num_scenarios": 20,
-      "average_task_grade": 0.8244,
-      "average_reward": 0.776,
-      "average_raw_reward": 0.72,
-      "total_task_grade": 16.488,
-      "total_reward": 15.520000000000001,
-      "total_raw_reward": 14.4,
+      "average_task_grade": 0.8327249999999999,
+      "average_reward": 0.7845,
+      "average_raw_reward": 0.730625,
+      "total_task_grade": 16.6545,
+      "total_reward": 15.69,
+      "total_raw_reward": 14.612499999999999,
       "decision_distribution": {
         "remove": 10,
-        "approve": 10
+        "approve": 9,
+        "warn": 1
       },
       "results": [
         {
@@ -679,7 +680,7 @@
           "raw_episode_reward": 0.7999999999999999,
           "task_grade": 0.887,
           "decision": "remove",
-          "confidence": 0.99,
+          "confidence": 0.98,
           "investigation_plan": [],
           "step_rewards": [
             0.8399999999999999
@@ -788,7 +789,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.99,
+                "confidence": 0.98,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "remove",
@@ -873,7 +874,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.99,
+                "confidence": 0.98,
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
@@ -890,34 +891,34 @@
           "scenario_id": "easy_gen_00_01",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.8,
-          "raw_episode_reward": 0.75,
-          "task_grade": 0.8370000000000001,
-          "decision": "remove",
-          "confidence": 0.98,
+          "episode_reward": 0.07999999999999999,
+          "raw_episode_reward": -0.15000000000000002,
+          "task_grade": 0.049999999999999996,
+          "decision": "warn",
+          "confidence": 0.91,
           "investigation_plan": [],
           "step_rewards": [
-            0.8
+            0.07999999999999999
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.8,
-            "raw_total": 0.75,
+            "total": 0.07999999999999999,
+            "raw_total": -0.15000000000000002,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.8,
-            "raw_applied_score": 0.75,
+            "applied_score": 0.07999999999999999,
+            "raw_applied_score": -0.15000000000000002,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.8,
-            "raw_cumulative_total": 0.75,
+            "cumulative_total": 0.07999999999999999,
+            "raw_cumulative_total": -0.15000000000000002,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -930,28 +931,28 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.9315068493150684,
+              "score": 0.10958904109589039,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.5,
+              "raw_score": -0.1,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "remove",
+                "agent_decision": "warn",
                 "correct_decision": "remove",
-                "decision_match": true,
-                "agent_violation": "5.1",
+                "decision_match": false,
+                "agent_violation": "none",
                 "correct_violation": "5.1",
-                "violation_match": true,
-                "agent_severity": "medium",
+                "violation_match": false,
+                "agent_severity": "low",
                 "correct_severity": "high",
                 "severity_match": false,
-                "grade": "decision_and_violation_correct",
-                "reward_score": 0.5,
-                "normalized_score": 0.91,
-                "eligible_for_efficiency": true,
-                "decision_correct": true
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
+                "eligible_for_efficiency": false,
+                "decision_correct": false
               }
             },
             "factor": {
@@ -982,34 +983,34 @@
               }
             },
             "efficiency": {
-              "score": 1.0,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.1,
+              "raw_score": 0.0,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": true,
-                "efficiency_bonus": 0.1
+                "eligible_for_efficiency": false,
+                "reason": "requires_correct_decision_and_violation"
               }
             },
             "calibration": {
-              "score": 1.0,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.1,
+              "raw_score": -0.1,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.98,
-                "is_correct": true,
+                "confidence": 0.91,
+                "is_correct": false,
                 "difficulty": "easy",
-                "agent_decision": "remove",
+                "agent_decision": "warn",
                 "correct_decision": "remove",
-                "calibration_type": "high_confidence_correct"
+                "calibration_type": "overconfident_wrong"
               }
             },
             "trajectory": null,
@@ -1018,7 +1019,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.91,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1026,20 +1027,20 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "remove",
+                "agent_decision": "warn",
                 "correct_decision": "remove",
-                "decision_match": true,
-                "agent_violation": "5.1",
+                "decision_match": false,
+                "agent_violation": "none",
                 "correct_violation": "5.1",
-                "violation_match": true,
-                "agent_severity": "medium",
+                "violation_match": false,
+                "agent_severity": "low",
                 "correct_severity": "high",
                 "severity_match": false,
-                "grade": "decision_and_violation_correct",
-                "reward_score": 0.5,
-                "normalized_score": 0.91,
-                "eligible_for_efficiency": true,
-                "decision_correct": true
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
+                "eligible_for_efficiency": false,
+                "decision_correct": false
               }
             },
             "factor_overlap": {
@@ -1069,7 +1070,7 @@
               }
             },
             "efficiency": {
-              "score": 1.0,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1078,11 +1079,11 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": true
+                "eligible_for_efficiency": false
               }
             },
             "calibration": {
-              "score": 1.0,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1090,15 +1091,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.98,
-                "agent_decision": "remove",
+                "confidence": 0.91,
+                "agent_decision": "warn",
                 "correct_decision": "remove",
                 "difficulty": "easy",
-                "is_correct": true,
-                "calibration_type": "high_confidence_correct"
+                "is_correct": false,
+                "calibration_type": "overconfident_wrong"
               }
             },
-            "total": 0.8370000000000001
+            "total": 0.049999999999999996
           },
           "status": "success",
           "failure": null
@@ -1158,7 +1159,7 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "4.1",
+                "agent_violation": "5.2",
                 "correct_violation": "5.1",
                 "violation_match": false,
                 "agent_severity": "medium",
@@ -1246,7 +1247,7 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "4.1",
+                "agent_violation": "5.2",
                 "correct_violation": "5.1",
                 "violation_match": false,
                 "agent_severity": "medium",
@@ -1324,34 +1325,34 @@
           "scenario_id": "easy_gen_00_04",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.9199999999999999,
-          "raw_episode_reward": 0.9,
-          "task_grade": 1.0,
+          "episode_reward": 0.64,
+          "raw_episode_reward": 0.55,
+          "task_grade": 0.661,
           "decision": "remove",
-          "confidence": 0.92,
+          "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
-            0.9199999999999999
+            0.64
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.9199999999999999,
-            "raw_total": 0.9,
+            "total": 0.64,
+            "raw_total": 0.55,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.9199999999999999,
-            "raw_applied_score": 0.9,
+            "applied_score": 0.64,
+            "raw_applied_score": 0.55,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.9199999999999999,
-            "raw_cumulative_total": 0.9,
+            "cumulative_total": 0.64,
+            "raw_cumulative_total": 0.55,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -1364,10 +1365,10 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 1.0,
+              "score": 0.7945205479452055,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.55,
+              "raw_score": 0.4,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
@@ -1375,54 +1376,58 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.1",
+                "agent_violation": "5.2",
                 "correct_violation": "5.1",
-                "violation_match": true,
+                "violation_match": false,
                 "agent_severity": "high",
                 "correct_severity": "high",
                 "severity_match": true,
-                "grade": "perfect",
-                "reward_score": 0.55,
-                "normalized_score": 1.0,
-                "eligible_for_efficiency": true,
+                "grade": "decision_correct_only",
+                "reward_score": 0.4,
+                "normalized_score": 0.73,
+                "eligible_for_efficiency": false,
                 "decision_correct": true
               }
             },
             "factor": {
-              "score": 1.0,
+              "score": 0.3333333333333333,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.15,
+              "raw_score": 0.049999999999999996,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
                 "intersection": [
-                  "clear_violation_no_exception",
-                  "spam_commercial"
+                  "clear_violation_no_exception"
                 ],
                 "union": [
+                  "auto_flag_high_confidence",
                   "clear_violation_no_exception",
                   "spam_commercial"
                 ],
-                "agent_only": [],
-                "truth_only": [],
-                "jaccard": 1.0,
-                "factor_score": 0.15
+                "agent_only": [
+                  "auto_flag_high_confidence"
+                ],
+                "truth_only": [
+                  "spam_commercial"
+                ],
+                "jaccard": 0.3333333333333333,
+                "factor_score": 0.049999999999999996
               }
             },
             "efficiency": {
-              "score": 1.0,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.1,
+              "raw_score": 0.0,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": true,
-                "efficiency_bonus": 0.1
+                "eligible_for_efficiency": false,
+                "reason": "requires_correct_decision_and_violation"
               }
             },
             "calibration": {
@@ -1434,7 +1439,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.92,
+                "confidence": 0.99,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "remove",
@@ -1448,7 +1453,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 1.0,
+              "score": 0.73,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1459,21 +1464,21 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.1",
+                "agent_violation": "5.2",
                 "correct_violation": "5.1",
-                "violation_match": true,
+                "violation_match": false,
                 "agent_severity": "high",
                 "correct_severity": "high",
                 "severity_match": true,
-                "grade": "perfect",
-                "reward_score": 0.55,
-                "normalized_score": 1.0,
-                "eligible_for_efficiency": true,
+                "grade": "decision_correct_only",
+                "reward_score": 0.4,
+                "normalized_score": 0.73,
+                "eligible_for_efficiency": false,
                 "decision_correct": true
               }
             },
             "factor_overlap": {
-              "score": 1.0,
+              "score": 0.3333333333333333,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1482,20 +1487,24 @@
               "weight": 0.15,
               "details": {
                 "intersection": [
-                  "clear_violation_no_exception",
-                  "spam_commercial"
+                  "clear_violation_no_exception"
                 ],
                 "union": [
+                  "auto_flag_high_confidence",
                   "clear_violation_no_exception",
                   "spam_commercial"
                 ],
-                "agent_only": [],
-                "truth_only": [],
-                "jaccard": 1.0
+                "agent_only": [
+                  "auto_flag_high_confidence"
+                ],
+                "truth_only": [
+                  "spam_commercial"
+                ],
+                "jaccard": 0.3333333333333333
               }
             },
             "efficiency": {
-              "score": 1.0,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -1504,7 +1513,7 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": true
+                "eligible_for_efficiency": false
               }
             },
             "calibration": {
@@ -1516,7 +1525,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.92,
+                "confidence": 0.99,
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
@@ -1524,7 +1533,7 @@
                 "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 1.0
+            "total": 0.661
           },
           "status": "success",
           "failure": null
@@ -2182,7 +2191,7 @@
           "raw_episode_reward": 0.85,
           "task_grade": 0.95,
           "decision": "approve",
-          "confidence": 0.98,
+          "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
             0.8800000000000001
@@ -2291,7 +2300,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "approve",
@@ -2376,7 +2385,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "agent_decision": "approve",
                 "correct_decision": "approve",
                 "difficulty": "easy",
@@ -2608,34 +2617,34 @@
           "scenario_id": "easy_gen_05_00",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.63,
-          "raw_episode_reward": 0.5375,
-          "task_grade": 0.6485,
+          "episode_reward": 0.7899999999999999,
+          "raw_episode_reward": 0.7374999999999999,
+          "task_grade": 0.8245,
           "decision": "remove",
           "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
-            0.63
+            0.7899999999999999
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.63,
-            "raw_total": 0.5375,
+            "total": 0.7899999999999999,
+            "raw_total": 0.7374999999999999,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.63,
-            "raw_applied_score": 0.5375,
+            "applied_score": 0.7899999999999999,
+            "raw_applied_score": 0.7374999999999999,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.63,
-            "raw_cumulative_total": 0.5375,
+            "cumulative_total": 0.7899999999999999,
+            "raw_cumulative_total": 0.7374999999999999,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -2648,10 +2657,10 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.7945205479452055,
+              "score": 0.9315068493150684,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.4,
+              "raw_score": 0.5,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
@@ -2659,16 +2668,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -2702,17 +2711,17 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.1
               }
             },
             "calibration": {
@@ -2738,7 +2747,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.73,
+              "score": 0.91,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -2749,16 +2758,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -2791,7 +2800,7 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -2800,7 +2809,7 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
@@ -2820,7 +2829,7 @@
                 "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 0.6485
+            "total": 0.8245
           },
           "status": "success",
           "failure": null
@@ -2829,34 +2838,34 @@
           "scenario_id": "easy_gen_05_02",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.63,
-          "raw_episode_reward": 0.5375,
-          "task_grade": 0.6485,
+          "episode_reward": 0.7899999999999999,
+          "raw_episode_reward": 0.7374999999999999,
+          "task_grade": 0.8245,
           "decision": "remove",
-          "confidence": 0.98,
+          "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
-            0.63
+            0.7899999999999999
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.63,
-            "raw_total": 0.5375,
+            "total": 0.7899999999999999,
+            "raw_total": 0.7374999999999999,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.63,
-            "raw_applied_score": 0.5375,
+            "applied_score": 0.7899999999999999,
+            "raw_applied_score": 0.7374999999999999,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.63,
-            "raw_cumulative_total": 0.5375,
+            "cumulative_total": 0.7899999999999999,
+            "raw_cumulative_total": 0.7374999999999999,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -2869,10 +2878,10 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.7945205479452055,
+              "score": 0.9315068493150684,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.4,
+              "raw_score": 0.5,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
@@ -2880,16 +2889,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -2923,17 +2932,17 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.1
               }
             },
             "calibration": {
@@ -2945,7 +2954,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "remove",
@@ -2959,7 +2968,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.73,
+              "score": 0.91,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -2970,16 +2979,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -3012,7 +3021,7 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3021,7 +3030,7 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
@@ -3033,7 +3042,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
@@ -3041,7 +3050,7 @@
                 "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 0.6485
+            "total": 0.8245
           },
           "status": "success",
           "failure": null
@@ -3050,34 +3059,34 @@
           "scenario_id": "easy_gen_05_03",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.63,
-          "raw_episode_reward": 0.5375,
-          "task_grade": 0.6485,
+          "episode_reward": 0.7899999999999999,
+          "raw_episode_reward": 0.7374999999999999,
+          "task_grade": 0.8245,
           "decision": "remove",
-          "confidence": 0.98,
+          "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
-            0.63
+            0.7899999999999999
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.63,
-            "raw_total": 0.5375,
+            "total": 0.7899999999999999,
+            "raw_total": 0.7374999999999999,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.63,
-            "raw_applied_score": 0.5375,
+            "applied_score": 0.7899999999999999,
+            "raw_applied_score": 0.7374999999999999,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.63,
-            "raw_cumulative_total": 0.5375,
+            "cumulative_total": 0.7899999999999999,
+            "raw_cumulative_total": 0.7374999999999999,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -3090,10 +3099,10 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.7945205479452055,
+              "score": 0.9315068493150684,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.4,
+              "raw_score": 0.5,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
@@ -3101,16 +3110,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -3144,17 +3153,17 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.1
               }
             },
             "calibration": {
@@ -3166,7 +3175,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "remove",
@@ -3180,7 +3189,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.73,
+              "score": 0.91,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3191,16 +3200,16 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "5.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
@@ -3233,7 +3242,7 @@
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3242,7 +3251,7 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
@@ -3254,7 +3263,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
@@ -3262,7 +3271,7 @@
                 "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 0.6485
+            "total": 0.8245
           },
           "status": "success",
           "failure": null
@@ -3271,34 +3280,34 @@
           "scenario_id": "easy_gen_05_04",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.63,
-          "raw_episode_reward": 0.5375,
-          "task_grade": 0.6485,
+          "episode_reward": 0.76,
+          "raw_episode_reward": 0.7,
+          "task_grade": 0.787,
           "decision": "remove",
-          "confidence": 0.99,
+          "confidence": 0.9,
           "investigation_plan": [],
           "step_rewards": [
-            0.63
+            0.76
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.63,
-            "raw_total": 0.5375,
+            "total": 0.76,
+            "raw_total": 0.7,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.63,
-            "raw_applied_score": 0.5375,
+            "applied_score": 0.76,
+            "raw_applied_score": 0.7,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.63,
-            "raw_cumulative_total": 0.5375,
+            "cumulative_total": 0.76,
+            "raw_cumulative_total": 0.7,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -3311,10 +3320,10 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.7945205479452055,
+              "score": 0.9315068493150684,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.4,
+              "raw_score": 0.5,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
@@ -3322,31 +3331,29 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "1.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
             "factor": {
-              "score": 0.25,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0375,
+              "raw_score": 0.0,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [
-                  "clear_violation_no_exception"
-                ],
+                "intersection": [],
                 "union": [
                   "auto_flag_high_confidence",
                   "clear_violation_no_exception",
@@ -3357,25 +3364,26 @@
                   "auto_flag_high_confidence"
                 ],
                 "truth_only": [
+                  "clear_violation_no_exception",
                   "harmful_link",
                   "spam_commercial"
                 ],
-                "jaccard": 0.25,
-                "factor_score": 0.0375
+                "jaccard": 0.0,
+                "factor_score": 0.0
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.1
               }
             },
             "calibration": {
@@ -3387,7 +3395,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.99,
+                "confidence": 0.9,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "remove",
@@ -3401,7 +3409,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.73,
+              "score": 0.91,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3412,21 +3420,21 @@
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "decision_match": true,
-                "agent_violation": "1.2",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "high",
                 "correct_severity": "critical",
                 "severity_match": false,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
-                "eligible_for_efficiency": false,
+                "grade": "decision_and_violation_correct",
+                "reward_score": 0.5,
+                "normalized_score": 0.91,
+                "eligible_for_efficiency": true,
                 "decision_correct": true
               }
             },
             "factor_overlap": {
-              "score": 0.25,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3434,9 +3442,7 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [
-                  "clear_violation_no_exception"
-                ],
+                "intersection": [],
                 "union": [
                   "auto_flag_high_confidence",
                   "clear_violation_no_exception",
@@ -3447,14 +3453,15 @@
                   "auto_flag_high_confidence"
                 ],
                 "truth_only": [
+                  "clear_violation_no_exception",
                   "harmful_link",
                   "spam_commercial"
                 ],
-                "jaccard": 0.25
+                "jaccard": 0.0
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -3463,7 +3470,7 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 0,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
@@ -3475,7 +3482,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.99,
+                "confidence": 0.9,
                 "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
@@ -3483,7 +3490,7 @@
                 "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 0.6485
+            "total": 0.787
           },
           "status": "success",
           "failure": null
@@ -3914,7 +3921,7 @@
           "raw_episode_reward": 0.9,
           "task_grade": 1.0,
           "decision": "approve",
-          "confidence": 0.98,
+          "confidence": 0.99,
           "investigation_plan": [],
           "step_rewards": [
             0.9199999999999999
@@ -4018,7 +4025,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "is_correct": true,
                 "difficulty": "easy",
                 "agent_decision": "approve",
@@ -4098,7 +4105,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.98,
+                "confidence": 0.99,
                 "agent_decision": "approve",
                 "correct_decision": "approve",
                 "difficulty": "easy",
@@ -4115,34 +4122,34 @@
           "scenario_id": "easy_gen_07_00",
           "task_id": "clear_violations",
           "difficulty": "easy",
-          "episode_reward": 0.07999999999999999,
-          "raw_episode_reward": -0.15000000000000002,
-          "task_grade": 0.034999999999999996,
-          "decision": "approve",
+          "episode_reward": 0.64,
+          "raw_episode_reward": 0.55,
+          "task_grade": 0.661,
+          "decision": "remove",
           "confidence": 0.93,
           "investigation_plan": [],
           "step_rewards": [
-            0.07999999999999999
+            0.64
           ],
           "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.07999999999999999,
-            "raw_total": -0.15000000000000002,
+            "total": 0.64,
+            "raw_total": 0.55,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.07999999999999999,
-            "raw_applied_score": -0.15000000000000002,
+            "applied_score": 0.64,
+            "raw_applied_score": 0.55,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.2,
             "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.07999999999999999,
-            "raw_cumulative_total": -0.15000000000000002,
+            "cumulative_total": 0.64,
+            "raw_cumulative_total": 0.55,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -4155,56 +4162,55 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.17808219178082194,
+              "score": 0.7945205479452055,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.05,
+              "raw_score": 0.4,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "remove",
                 "correct_decision": "remove",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.2",
                 "violation_match": false,
-                "agent_severity": "none",
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "false_negative",
-                "reward_score": -0.05,
-                "normalized_score": 0.05,
+                "severity_match": true,
+                "grade": "decision_correct_only",
+                "reward_score": 0.4,
+                "normalized_score": 0.73,
                 "eligible_for_efficiency": false,
-                "decision_correct": false
+                "decision_correct": true
               }
             },
             "factor": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.049999999999999996,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "clear_violation_no_exception"
+                ],
                 "union": [
-                  "auto_flag_low_confidence",
                   "clear_violation_no_exception",
-                  "no_violation_found",
+                  "spam_commercial",
                   "spam_engagement"
                 ],
                 "agent_only": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found"
+                  "spam_commercial"
                 ],
                 "truth_only": [
-                  "clear_violation_no_exception",
                   "spam_engagement"
                 ],
-                "jaccard": 0.0,
-                "factor_score": 0.0
+                "jaccard": 0.3333333333333333,
+                "factor_score": 0.049999999999999996
               }
             },
             "efficiency": {
@@ -4222,20 +4228,20 @@
               }
             },
             "calibration": {
-              "score": 0.0,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.1,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
                 "confidence": 0.93,
-                "is_correct": false,
+                "is_correct": true,
                 "difficulty": "easy",
-                "agent_decision": "approve",
+                "agent_decision": "remove",
                 "correct_decision": "remove",
-                "calibration_type": "overconfident_wrong"
+                "calibration_type": "high_confidence_correct"
               }
             },
             "trajectory": null,
@@ -4244,7 +4250,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.05,
+              "score": 0.73,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -4252,24 +4258,24 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "remove",
                 "correct_decision": "remove",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.2",
                 "violation_match": false,
-                "agent_severity": "none",
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "false_negative",
-                "reward_score": -0.05,
-                "normalized_score": 0.05,
+                "severity_match": true,
+                "grade": "decision_correct_only",
+                "reward_score": 0.4,
+                "normalized_score": 0.73,
                 "eligible_for_efficiency": false,
-                "decision_correct": false
+                "decision_correct": true
               }
             },
             "factor_overlap": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -4277,22 +4283,21 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "clear_violation_no_exception"
+                ],
                 "union": [
-                  "auto_flag_low_confidence",
                   "clear_violation_no_exception",
-                  "no_violation_found",
+                  "spam_commercial",
                   "spam_engagement"
                 ],
                 "agent_only": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found"
+                  "spam_commercial"
                 ],
                 "truth_only": [
-                  "clear_violation_no_exception",
                   "spam_engagement"
                 ],
-                "jaccard": 0.0
+                "jaccard": 0.3333333333333333
               }
             },
             "efficiency": {
@@ -4309,7 +4314,7 @@
               }
             },
             "calibration": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -4318,14 +4323,14 @@
               "weight": 0.1,
               "details": {
                 "confidence": 0.93,
-                "agent_decision": "approve",
+                "agent_decision": "remove",
                 "correct_decision": "remove",
                 "difficulty": "easy",
-                "is_correct": false,
-                "calibration_type": "overconfident_wrong"
+                "is_correct": true,
+                "calibration_type": "high_confidence_correct"
               }
             },
-            "total": 0.034999999999999996
+            "total": 0.661
           },
           "status": "success",
           "failure": null
@@ -4338,16 +4343,16 @@
     "context_dependent": {
       "task_id": "context_dependent",
       "num_scenarios": 20,
-      "average_task_grade": 0.49345,
-      "average_reward": 0.49139999999999995,
-      "average_raw_reward": 0.36425,
-      "total_task_grade": 9.869,
-      "total_reward": 9.828,
-      "total_raw_reward": 7.285,
+      "average_task_grade": 0.46252499999999996,
+      "average_reward": 0.4748,
+      "average_raw_reward": 0.3435,
+      "total_task_grade": 9.250499999999999,
+      "total_reward": 9.496,
+      "total_raw_reward": 6.87,
       "decision_distribution": {
         "remove": 4,
-        "approve": 11,
-        "warn": 5
+        "approve": 10,
+        "warn": 6
       },
       "results": [
         {
@@ -5002,259 +5007,37 @@
           "scenario_id": "med_gen_01_00",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.05599999999999998,
-          "raw_episode_reward": -0.18000000000000002,
-          "task_grade": 0.034999999999999996,
-          "decision": "approve",
-          "confidence": 0.9,
+          "episode_reward": 0.096,
+          "raw_episode_reward": -0.13,
+          "task_grade": 0.005000000000000001,
+          "decision": "warn",
+          "confidence": 0.68,
           "investigation_plan": [
-            "author_profile"
+            "linked_content_summary"
           ],
           "step_rewards": [
             0.176,
-            0.07999999999999999
+            0.12
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.07999999999999999,
-            "raw_total": -0.15000000000000002,
+            "total": 0.12,
+            "raw_total": -0.1,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.07999999999999999,
-            "raw_applied_score": -0.15000000000000002,
+            "applied_score": 0.12,
+            "raw_applied_score": -0.1,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.176,
             "raw_trajectory_total": -0.03,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.05599999999999998,
-            "raw_cumulative_total": -0.18000000000000002,
-            "theoretical_terminal_max": 0.9199999999999999,
-            "theoretical_terminal_min": 0.0,
-            "raw_theoretical_terminal_max": 0.9,
-            "raw_theoretical_terminal_min": -0.25,
-            "context_field": null,
-            "context_needed": [],
-            "is_needed": null,
-            "retrieved": null,
-            "reason": null,
-            "action_type": null,
-            "trajectory_cap": null,
-            "decision": {
-              "score": 0.17808219178082194,
-              "max": 1.0,
-              "min": 0.0,
-              "raw_score": -0.05,
-              "raw_max": 0.55,
-              "raw_min": -0.18,
-              "weight": null,
-              "details": {
-                "agent_decision": "approve",
-                "correct_decision": "remove",
-                "decision_match": false,
-                "agent_violation": "none",
-                "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "none",
-                "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "false_negative",
-                "reward_score": -0.05,
-                "normalized_score": 0.05,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
-              }
-            },
-            "factor": {
-              "score": 0.0,
-              "max": 1.0,
-              "min": 0.0,
-              "raw_score": 0.0,
-              "raw_max": 0.15,
-              "raw_min": null,
-              "weight": null,
-              "details": {
-                "intersection": [],
-                "union": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found",
-                  "repeat_offender",
-                  "spam_commercial"
-                ],
-                "agent_only": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found"
-                ],
-                "truth_only": [
-                  "repeat_offender",
-                  "spam_commercial"
-                ],
-                "jaccard": 0.0,
-                "factor_score": 0.0
-              }
-            },
-            "efficiency": {
-              "score": 0.0,
-              "max": 1.0,
-              "min": 0.0,
-              "raw_score": 0.0,
-              "raw_max": 0.1,
-              "raw_min": null,
-              "weight": null,
-              "details": {
-                "actions_taken": 1,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
-              }
-            },
-            "calibration": {
-              "score": 0.0,
-              "max": 1.0,
-              "min": 0.0,
-              "raw_score": -0.1,
-              "raw_max": 0.1,
-              "raw_min": -0.1,
-              "weight": null,
-              "details": {
-                "confidence": 0.9,
-                "is_correct": false,
-                "difficulty": "medium",
-                "agent_decision": "approve",
-                "correct_decision": "remove",
-                "calibration_type": "overconfident_wrong"
-              }
-            },
-            "trajectory": null,
-            "no_decision": null,
-            "last_terminal_breakdown": null
-          },
-          "final_grade_breakdown": {
-            "decision": {
-              "score": 0.05,
-              "max": null,
-              "min": null,
-              "raw_score": null,
-              "raw_max": null,
-              "raw_min": null,
-              "weight": 0.7,
-              "details": {
-                "agent_decision": "approve",
-                "correct_decision": "remove",
-                "decision_match": false,
-                "agent_violation": "none",
-                "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "none",
-                "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "false_negative",
-                "reward_score": -0.05,
-                "normalized_score": 0.05,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
-              }
-            },
-            "factor_overlap": {
-              "score": 0.0,
-              "max": null,
-              "min": null,
-              "raw_score": null,
-              "raw_max": null,
-              "raw_min": null,
-              "weight": 0.15,
-              "details": {
-                "intersection": [],
-                "union": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found",
-                  "repeat_offender",
-                  "spam_commercial"
-                ],
-                "agent_only": [
-                  "auto_flag_low_confidence",
-                  "no_violation_found"
-                ],
-                "truth_only": [
-                  "repeat_offender",
-                  "spam_commercial"
-                ],
-                "jaccard": 0.0
-              }
-            },
-            "efficiency": {
-              "score": 0.0,
-              "max": null,
-              "min": null,
-              "raw_score": null,
-              "raw_max": null,
-              "raw_min": null,
-              "weight": 0.05,
-              "details": {
-                "actions_taken": 1,
-                "eligible_for_efficiency": false
-              }
-            },
-            "calibration": {
-              "score": 0.0,
-              "max": null,
-              "min": null,
-              "raw_score": null,
-              "raw_max": null,
-              "raw_min": null,
-              "weight": 0.1,
-              "details": {
-                "confidence": 0.9,
-                "agent_decision": "approve",
-                "correct_decision": "remove",
-                "difficulty": "medium",
-                "is_correct": false,
-                "calibration_type": "overconfident_wrong"
-              }
-            },
-            "total": 0.034999999999999996
-          },
-          "status": "success",
-          "failure": null
-        },
-        {
-          "scenario_id": "med_gen_01_01",
-          "task_id": "context_dependent",
-          "difficulty": "medium",
-          "episode_reward": 0.2,
-          "raw_episode_reward": -6.938893903907228e-18,
-          "task_grade": 0.05499999999999999,
-          "decision": "warn",
-          "confidence": 0.68,
-          "investigation_plan": [
-            "author_violations"
-          ],
-          "step_rewards": [
-            0.24,
-            0.15999999999999998
-          ],
-          "steps_taken": 2,
-          "final_reward_breakdown": {
-            "reward_type": "terminal",
-            "total": 0.15999999999999998,
-            "raw_total": -0.05000000000000001,
-            "score": null,
-            "raw_score": null,
-            "requested_score": null,
-            "raw_requested_score": null,
-            "applied_score": 0.15999999999999998,
-            "raw_applied_score": -0.05000000000000001,
-            "step_total": null,
-            "raw_step_total": null,
-            "trajectory_total": 0.24,
-            "raw_trajectory_total": 0.05,
-            "episode_total": null,
-            "raw_episode_total": null,
-            "cumulative_total": 0.2,
-            "raw_cumulative_total": -6.938893903907228e-18,
+            "cumulative_total": 0.096,
+            "raw_cumulative_total": -0.13,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -5278,9 +5061,9 @@
                 "agent_decision": "warn",
                 "correct_decision": "remove",
                 "decision_match": false,
-                "agent_violation": "none",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "low",
                 "correct_severity": "medium",
                 "severity_match": false,
@@ -5292,17 +5075,15 @@
               }
             },
             "factor": {
-              "score": 0.3333333333333333,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.049999999999999996,
+              "raw_score": 0.0,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [
-                  "repeat_offender"
-                ],
+                "intersection": [],
                 "union": [
                   "auto_flag_low_confidence",
                   "repeat_offender",
@@ -5312,10 +5093,11 @@
                   "auto_flag_low_confidence"
                 ],
                 "truth_only": [
+                  "repeat_offender",
                   "spam_commercial"
                 ],
-                "jaccard": 0.3333333333333333,
-                "factor_score": 0.049999999999999996
+                "jaccard": 0.0,
+                "factor_score": 0.0
               }
             },
             "efficiency": {
@@ -5366,9 +5148,9 @@
                 "agent_decision": "warn",
                 "correct_decision": "remove",
                 "decision_match": false,
-                "agent_violation": "none",
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
+                "violation_match": true,
                 "agent_severity": "low",
                 "correct_severity": "medium",
                 "severity_match": false,
@@ -5380,7 +5162,7 @@
               }
             },
             "factor_overlap": {
-              "score": 0.3333333333333333,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -5388,9 +5170,7 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [
-                  "repeat_offender"
-                ],
+                "intersection": [],
                 "union": [
                   "auto_flag_low_confidence",
                   "repeat_offender",
@@ -5400,9 +5180,10 @@
                   "auto_flag_low_confidence"
                 ],
                 "truth_only": [
+                  "repeat_offender",
                   "spam_commercial"
                 ],
-                "jaccard": 0.3333333333333333
+                "jaccard": 0.0
               }
             },
             "efficiency": {
@@ -5435,7 +5216,229 @@
                 "calibration_type": "confident_wrong"
               }
             },
-            "total": 0.05499999999999999
+            "total": 0.005000000000000001
+          },
+          "status": "success",
+          "failure": null
+        },
+        {
+          "scenario_id": "med_gen_01_01",
+          "task_id": "context_dependent",
+          "difficulty": "medium",
+          "episode_reward": 0.096,
+          "raw_episode_reward": -0.13,
+          "task_grade": 0.005000000000000001,
+          "decision": "warn",
+          "confidence": 0.68,
+          "investigation_plan": [
+            "linked_content_summary"
+          ],
+          "step_rewards": [
+            0.176,
+            0.12
+          ],
+          "steps_taken": 2,
+          "final_reward_breakdown": {
+            "reward_type": "terminal",
+            "total": 0.12,
+            "raw_total": -0.1,
+            "score": null,
+            "raw_score": null,
+            "requested_score": null,
+            "raw_requested_score": null,
+            "applied_score": 0.12,
+            "raw_applied_score": -0.1,
+            "step_total": null,
+            "raw_step_total": null,
+            "trajectory_total": 0.176,
+            "raw_trajectory_total": -0.03,
+            "episode_total": null,
+            "raw_episode_total": null,
+            "cumulative_total": 0.096,
+            "raw_cumulative_total": -0.13,
+            "theoretical_terminal_max": 0.9199999999999999,
+            "theoretical_terminal_min": 0.0,
+            "raw_theoretical_terminal_max": 0.9,
+            "raw_theoretical_terminal_min": -0.25,
+            "context_field": null,
+            "context_needed": [],
+            "is_needed": null,
+            "retrieved": null,
+            "reason": null,
+            "action_type": null,
+            "trajectory_cap": null,
+            "decision": {
+              "score": 0.10958904109589039,
+              "max": 1.0,
+              "min": 0.0,
+              "raw_score": -0.1,
+              "raw_max": 0.55,
+              "raw_min": -0.18,
+              "weight": null,
+              "details": {
+                "agent_decision": "warn",
+                "correct_decision": "remove",
+                "decision_match": false,
+                "agent_violation": "5.1",
+                "correct_violation": "5.1",
+                "violation_match": true,
+                "agent_severity": "low",
+                "correct_severity": "medium",
+                "severity_match": false,
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
+                "eligible_for_efficiency": false,
+                "decision_correct": false
+              }
+            },
+            "factor": {
+              "score": 0.0,
+              "max": 1.0,
+              "min": 0.0,
+              "raw_score": 0.0,
+              "raw_max": 0.15,
+              "raw_min": null,
+              "weight": null,
+              "details": {
+                "intersection": [],
+                "union": [
+                  "auto_flag_low_confidence",
+                  "clear_violation_no_exception",
+                  "repeat_offender",
+                  "spam_commercial"
+                ],
+                "agent_only": [
+                  "auto_flag_low_confidence",
+                  "clear_violation_no_exception"
+                ],
+                "truth_only": [
+                  "repeat_offender",
+                  "spam_commercial"
+                ],
+                "jaccard": 0.0,
+                "factor_score": 0.0
+              }
+            },
+            "efficiency": {
+              "score": 0.0,
+              "max": 1.0,
+              "min": 0.0,
+              "raw_score": 0.0,
+              "raw_max": 0.1,
+              "raw_min": null,
+              "weight": null,
+              "details": {
+                "actions_taken": 1,
+                "eligible_for_efficiency": false,
+                "reason": "requires_correct_decision_and_violation"
+              }
+            },
+            "calibration": {
+              "score": 0.5,
+              "max": 1.0,
+              "min": 0.0,
+              "raw_score": 0.0,
+              "raw_max": 0.1,
+              "raw_min": -0.1,
+              "weight": null,
+              "details": {
+                "confidence": 0.68,
+                "is_correct": false,
+                "difficulty": "medium",
+                "agent_decision": "warn",
+                "correct_decision": "remove",
+                "calibration_type": "wrong"
+              }
+            },
+            "trajectory": null,
+            "no_decision": null,
+            "last_terminal_breakdown": null
+          },
+          "final_grade_breakdown": {
+            "decision": {
+              "score": 0.0,
+              "max": null,
+              "min": null,
+              "raw_score": null,
+              "raw_max": null,
+              "raw_min": null,
+              "weight": 0.7,
+              "details": {
+                "agent_decision": "warn",
+                "correct_decision": "remove",
+                "decision_match": false,
+                "agent_violation": "5.1",
+                "correct_violation": "5.1",
+                "violation_match": true,
+                "agent_severity": "low",
+                "correct_severity": "medium",
+                "severity_match": false,
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
+                "eligible_for_efficiency": false,
+                "decision_correct": false
+              }
+            },
+            "factor_overlap": {
+              "score": 0.0,
+              "max": null,
+              "min": null,
+              "raw_score": null,
+              "raw_max": null,
+              "raw_min": null,
+              "weight": 0.15,
+              "details": {
+                "intersection": [],
+                "union": [
+                  "auto_flag_low_confidence",
+                  "clear_violation_no_exception",
+                  "repeat_offender",
+                  "spam_commercial"
+                ],
+                "agent_only": [
+                  "auto_flag_low_confidence",
+                  "clear_violation_no_exception"
+                ],
+                "truth_only": [
+                  "repeat_offender",
+                  "spam_commercial"
+                ],
+                "jaccard": 0.0
+              }
+            },
+            "efficiency": {
+              "score": 0.0,
+              "max": null,
+              "min": null,
+              "raw_score": null,
+              "raw_max": null,
+              "raw_min": null,
+              "weight": 0.05,
+              "details": {
+                "actions_taken": 1,
+                "eligible_for_efficiency": false
+              }
+            },
+            "calibration": {
+              "score": 0.05,
+              "max": null,
+              "min": null,
+              "raw_score": null,
+              "raw_max": null,
+              "raw_min": null,
+              "weight": 0.1,
+              "details": {
+                "confidence": 0.68,
+                "agent_decision": "warn",
+                "correct_decision": "remove",
+                "difficulty": "medium",
+                "is_correct": false,
+                "calibration_type": "confident_wrong"
+              }
+            },
+            "total": 0.005000000000000001
           },
           "status": "success",
           "failure": null
@@ -5444,37 +5447,37 @@
           "scenario_id": "med_gen_01_02",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.05599999999999998,
-          "raw_episode_reward": -0.18000000000000002,
-          "task_grade": 0.034999999999999996,
+          "episode_reward": 0.096,
+          "raw_episode_reward": -0.13,
+          "task_grade": 0.039999999999999994,
           "decision": "approve",
-          "confidence": 0.9,
+          "confidence": 0.72,
           "investigation_plan": [
-            "author_profile"
+            "linked_content_summary"
           ],
           "step_rewards": [
             0.176,
-            0.07999999999999999
+            0.12
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.07999999999999999,
-            "raw_total": -0.15000000000000002,
+            "total": 0.12,
+            "raw_total": -0.1,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.07999999999999999,
-            "raw_applied_score": -0.15000000000000002,
+            "applied_score": 0.12,
+            "raw_applied_score": -0.1,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.176,
             "raw_trajectory_total": -0.03,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.05599999999999998,
-            "raw_cumulative_total": -0.18000000000000002,
+            "cumulative_total": 0.096,
+            "raw_cumulative_total": -0.13,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -5554,20 +5557,20 @@
               }
             },
             "calibration": {
-              "score": 0.0,
+              "score": 0.25,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.1,
+              "raw_score": -0.05,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.9,
+                "confidence": 0.72,
                 "is_correct": false,
                 "difficulty": "medium",
                 "agent_decision": "approve",
                 "correct_decision": "remove",
-                "calibration_type": "overconfident_wrong"
+                "calibration_type": "confident_wrong"
               }
             },
             "trajectory": null,
@@ -5641,7 +5644,7 @@
               }
             },
             "calibration": {
-              "score": 0.0,
+              "score": 0.05,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -5649,15 +5652,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.9,
+                "confidence": 0.72,
                 "agent_decision": "approve",
                 "correct_decision": "remove",
                 "difficulty": "medium",
                 "is_correct": false,
-                "calibration_type": "overconfident_wrong"
+                "calibration_type": "confident_wrong"
               }
             },
-            "total": 0.034999999999999996
+            "total": 0.039999999999999994
           },
           "status": "success",
           "failure": null
@@ -5890,37 +5893,34 @@
           "scenario_id": "med_gen_03_01",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.742,
-          "raw_episode_reward": 0.6775,
-          "task_grade": 0.8499999999999999,
+          "episode_reward": 0.782,
+          "raw_episode_reward": 0.7275,
+          "task_grade": 0.8574999999999999,
           "decision": "approve",
           "confidence": 0.72,
-          "investigation_plan": [
-            "thread_context"
-          ],
+          "investigation_plan": [],
           "step_rewards": [
-            0.176,
-            0.766
+            0.782
           ],
-          "steps_taken": 2,
+          "steps_taken": 1,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.766,
-            "raw_total": 0.7075,
+            "total": 0.782,
+            "raw_total": 0.7275,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.766,
-            "raw_applied_score": 0.7075,
+            "applied_score": 0.782,
+            "raw_applied_score": 0.7275,
             "step_total": null,
             "raw_step_total": null,
-            "trajectory_total": 0.176,
-            "raw_trajectory_total": -0.03,
+            "trajectory_total": 0.2,
+            "raw_trajectory_total": 0.0,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.742,
-            "raw_cumulative_total": 0.6775,
+            "cumulative_total": 0.782,
+            "raw_cumulative_total": 0.7275,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -5987,17 +5987,17 @@
               }
             },
             "efficiency": {
-              "score": 0.7999999999999999,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.08,
+              "raw_score": 0.1,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
-                "actions_taken": 1,
+                "actions_taken": 0,
                 "eligible_for_efficiency": true,
-                "efficiency_bonus": 0.08
+                "efficiency_bonus": 0.1
               }
             },
             "calibration": {
@@ -6076,7 +6076,7 @@
               }
             },
             "efficiency": {
-              "score": 0.85,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -6084,7 +6084,7 @@
               "raw_min": null,
               "weight": 0.05,
               "details": {
-                "actions_taken": 1,
+                "actions_taken": 0,
                 "eligible_for_efficiency": true
               }
             },
@@ -6105,7 +6105,7 @@
                 "calibration_type": "medium_confidence_correct"
               }
             },
-            "total": 0.8499999999999999
+            "total": 0.8574999999999999
           },
           "status": "success",
           "failure": null
@@ -6845,11 +6845,11 @@
                 "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
-                  "clear_violation_no_exception",
+                  "no_violation_found",
                   "public_figure_target"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "no_violation_found"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -6932,11 +6932,11 @@
                 "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
-                  "clear_violation_no_exception",
+                  "no_violation_found",
                   "public_figure_target"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "no_violation_found"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -6984,37 +6984,37 @@
           "scenario_id": "med_plus_004",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.05599999999999998,
-          "raw_episode_reward": -0.18000000000000002,
-          "task_grade": 0.005000000000000001,
-          "decision": "approve",
-          "confidence": 0.72,
+          "episode_reward": 0.24,
+          "raw_episode_reward": 0.05,
+          "task_grade": 0.11,
+          "decision": "warn",
+          "confidence": 0.68,
           "investigation_plan": [
             "thread_context"
           ],
           "step_rewards": [
             0.176,
-            0.07999999999999999
+            0.264
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.07999999999999999,
-            "raw_total": -0.15000000000000002,
+            "total": 0.264,
+            "raw_total": 0.08,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.07999999999999999,
-            "raw_applied_score": -0.15000000000000002,
+            "applied_score": 0.264,
+            "raw_applied_score": 0.08,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.176,
             "raw_trajectory_total": -0.03,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.05599999999999998,
-            "raw_cumulative_total": -0.18000000000000002,
+            "cumulative_total": 0.24,
+            "raw_cumulative_total": 0.05,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -7027,26 +7027,26 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.10958904109589039,
+              "score": 0.35616438356164387,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.1,
+              "raw_score": 0.08,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "warn",
                 "correct_decision": "escalate",
                 "decision_match": false,
                 "agent_violation": "none",
                 "correct_violation": "6.1",
                 "violation_match": false,
-                "agent_severity": "none",
+                "agent_severity": "low",
                 "correct_severity": "medium",
                 "severity_match": false,
-                "grade": "wrong_decision",
-                "reward_score": -0.1,
-                "normalized_score": 0.0,
+                "grade": "adjacent_decision",
+                "reward_score": 0.08,
+                "normalized_score": 0.15,
                 "eligible_for_efficiency": false,
                 "decision_correct": false
               }
@@ -7064,13 +7064,13 @@
                 "union": [
                   "auto_flag_low_confidence",
                   "borderline_requires_judgment",
+                  "clear_violation_no_exception",
                   "medical_or_educational_context",
-                  "no_violation_found",
                   "policy_sections_conflict"
                 ],
                 "agent_only": [
                   "auto_flag_low_confidence",
-                  "no_violation_found"
+                  "clear_violation_no_exception"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -7096,20 +7096,20 @@
               }
             },
             "calibration": {
-              "score": 0.25,
+              "score": 0.5,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.05,
+              "raw_score": 0.0,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.72,
+                "confidence": 0.68,
                 "is_correct": false,
                 "difficulty": "medium",
-                "agent_decision": "approve",
+                "agent_decision": "warn",
                 "correct_decision": "escalate",
-                "calibration_type": "confident_wrong"
+                "calibration_type": "wrong"
               }
             },
             "trajectory": null,
@@ -7118,7 +7118,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.0,
+              "score": 0.15,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -7126,18 +7126,18 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "warn",
                 "correct_decision": "escalate",
                 "decision_match": false,
                 "agent_violation": "none",
                 "correct_violation": "6.1",
                 "violation_match": false,
-                "agent_severity": "none",
+                "agent_severity": "low",
                 "correct_severity": "medium",
                 "severity_match": false,
-                "grade": "wrong_decision",
-                "reward_score": -0.1,
-                "normalized_score": 0.0,
+                "grade": "adjacent_decision",
+                "reward_score": 0.08,
+                "normalized_score": 0.15,
                 "eligible_for_efficiency": false,
                 "decision_correct": false
               }
@@ -7155,13 +7155,13 @@
                 "union": [
                   "auto_flag_low_confidence",
                   "borderline_requires_judgment",
+                  "clear_violation_no_exception",
                   "medical_or_educational_context",
-                  "no_violation_found",
                   "policy_sections_conflict"
                 ],
                 "agent_only": [
                   "auto_flag_low_confidence",
-                  "no_violation_found"
+                  "clear_violation_no_exception"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -7193,15 +7193,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.72,
-                "agent_decision": "approve",
+                "confidence": 0.68,
+                "agent_decision": "warn",
                 "correct_decision": "escalate",
                 "difficulty": "medium",
                 "is_correct": false,
                 "calibration_type": "confident_wrong"
               }
             },
-            "total": 0.005000000000000001
+            "total": 0.11
           },
           "status": "success",
           "failure": null
@@ -7644,37 +7644,37 @@
           "scenario_id": "med_warn_16",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.592,
-          "raw_episode_reward": 0.49,
-          "task_grade": 0.581,
-          "decision": "warn",
-          "confidence": 0.68,
+          "episode_reward": 0.07999999999999999,
+          "raw_episode_reward": -0.15000000000000002,
+          "task_grade": 0.0,
+          "decision": "approve",
+          "confidence": 0.9,
           "investigation_plan": [
             "thread_context"
           ],
           "step_rewards": [
             0.24,
-            0.5519999999999999
+            0.039999999999999994
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.5519999999999999,
-            "raw_total": 0.44,
+            "total": 0.039999999999999994,
+            "raw_total": -0.2,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.5519999999999999,
-            "raw_applied_score": 0.44,
+            "applied_score": 0.039999999999999994,
+            "raw_applied_score": -0.2,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.24,
             "raw_trajectory_total": 0.05,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.592,
-            "raw_cumulative_total": 0.49,
+            "cumulative_total": 0.07999999999999999,
+            "raw_cumulative_total": -0.15000000000000002,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -7687,28 +7687,28 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.7945205479452055,
+              "score": 0.10958904109589039,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.4,
+              "raw_score": -0.1,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "warn",
+                "agent_decision": "approve",
                 "correct_decision": "warn",
-                "decision_match": true,
-                "agent_violation": "1.2",
+                "decision_match": false,
+                "agent_violation": "none",
                 "correct_violation": "2.1",
                 "violation_match": false,
-                "agent_severity": "low",
+                "agent_severity": "none",
                 "correct_severity": "low",
-                "severity_match": true,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
+                "severity_match": false,
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
                 "eligible_for_efficiency": false,
-                "decision_correct": true
+                "decision_correct": false
               }
             },
             "factor": {
@@ -7723,11 +7723,11 @@
                 "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
-                  "clear_violation_no_exception",
-                  "cultural_context"
+                  "cultural_context",
+                  "no_violation_found"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "no_violation_found"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -7752,20 +7752,20 @@
               }
             },
             "calibration": {
-              "score": 0.7000000000000001,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.04,
+              "raw_score": -0.1,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.68,
-                "is_correct": true,
+                "confidence": 0.9,
+                "is_correct": false,
                 "difficulty": "medium",
-                "agent_decision": "warn",
+                "agent_decision": "approve",
                 "correct_decision": "warn",
-                "calibration_type": "medium_confidence_correct"
+                "calibration_type": "overconfident_wrong"
               }
             },
             "trajectory": null,
@@ -7774,7 +7774,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.73,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -7782,20 +7782,20 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "warn",
+                "agent_decision": "approve",
                 "correct_decision": "warn",
-                "decision_match": true,
-                "agent_violation": "1.2",
+                "decision_match": false,
+                "agent_violation": "none",
                 "correct_violation": "2.1",
                 "violation_match": false,
-                "agent_severity": "low",
+                "agent_severity": "none",
                 "correct_severity": "low",
-                "severity_match": true,
-                "grade": "decision_correct_only",
-                "reward_score": 0.4,
-                "normalized_score": 0.73,
+                "severity_match": false,
+                "grade": "wrong_decision",
+                "reward_score": -0.1,
+                "normalized_score": 0.0,
                 "eligible_for_efficiency": false,
-                "decision_correct": true
+                "decision_correct": false
               }
             },
             "factor_overlap": {
@@ -7810,11 +7810,11 @@
                 "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
-                  "clear_violation_no_exception",
-                  "cultural_context"
+                  "cultural_context",
+                  "no_violation_found"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "no_violation_found"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -7837,7 +7837,7 @@
               }
             },
             "calibration": {
-              "score": 0.7,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -7845,15 +7845,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.68,
-                "agent_decision": "warn",
+                "confidence": 0.9,
+                "agent_decision": "approve",
                 "correct_decision": "warn",
                 "difficulty": "medium",
-                "is_correct": true,
-                "calibration_type": "medium_confidence_correct"
+                "is_correct": false,
+                "calibration_type": "overconfident_wrong"
               }
             },
-            "total": 0.581
+            "total": 0.0
           },
           "status": "success",
           "failure": null
@@ -8088,9 +8088,9 @@
           "scenario_id": "med_warn_12",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.11599999999999999,
-          "raw_episode_reward": -0.10500000000000001,
-          "task_grade": 0.08,
+          "episode_reward": 0.05599999999999998,
+          "raw_episode_reward": -0.18000000000000002,
+          "task_grade": 0.005000000000000001,
           "decision": "approve",
           "confidence": 0.72,
           "investigation_plan": [
@@ -8098,27 +8098,27 @@
           ],
           "step_rewards": [
             0.176,
-            0.13999999999999999
+            0.07999999999999999
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.13999999999999999,
-            "raw_total": -0.07500000000000001,
+            "total": 0.07999999999999999,
+            "raw_total": -0.15000000000000002,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.13999999999999999,
-            "raw_applied_score": -0.07500000000000001,
+            "applied_score": 0.07999999999999999,
+            "raw_applied_score": -0.15000000000000002,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.176,
             "raw_trajectory_total": -0.03,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.11599999999999999,
-            "raw_cumulative_total": -0.10500000000000001,
+            "cumulative_total": 0.05599999999999998,
+            "raw_cumulative_total": -0.18000000000000002,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -8156,17 +8156,15 @@
               }
             },
             "factor": {
-              "score": 0.5,
+              "score": 0.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.075,
+              "raw_score": 0.0,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [
-                  "borderline_requires_judgment"
-                ],
+                "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
                   "no_violation_found"
@@ -8174,9 +8172,11 @@
                 "agent_only": [
                   "no_violation_found"
                 ],
-                "truth_only": [],
-                "jaccard": 0.5,
-                "factor_score": 0.075
+                "truth_only": [
+                  "borderline_requires_judgment"
+                ],
+                "jaccard": 0.0,
+                "factor_score": 0.0
               }
             },
             "efficiency": {
@@ -8241,7 +8241,7 @@
               }
             },
             "factor_overlap": {
-              "score": 0.5,
+              "score": 0.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -8249,9 +8249,7 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [
-                  "borderline_requires_judgment"
-                ],
+                "intersection": [],
                 "union": [
                   "borderline_requires_judgment",
                   "no_violation_found"
@@ -8259,8 +8257,10 @@
                 "agent_only": [
                   "no_violation_found"
                 ],
-                "truth_only": [],
-                "jaccard": 0.5
+                "truth_only": [
+                  "borderline_requires_judgment"
+                ],
+                "jaccard": 0.0
               }
             },
             "efficiency": {
@@ -8293,7 +8293,7 @@
                 "calibration_type": "confident_wrong"
               }
             },
-            "total": 0.08
+            "total": 0.005000000000000001
           },
           "status": "success",
           "failure": null
@@ -8302,37 +8302,37 @@
           "scenario_id": "med_escalate_01",
           "task_id": "context_dependent",
           "difficulty": "medium",
-          "episode_reward": 0.05599999999999998,
-          "raw_episode_reward": -0.18000000000000002,
+          "episode_reward": 0.096,
+          "raw_episode_reward": -0.13,
           "task_grade": 0.005000000000000001,
           "decision": "approve",
-          "confidence": 0.78,
+          "confidence": 0.62,
           "investigation_plan": [
             "reporter_credibility"
           ],
           "step_rewards": [
             0.176,
-            0.07999999999999999
+            0.12
           ],
           "steps_taken": 2,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.07999999999999999,
-            "raw_total": -0.15000000000000002,
+            "total": 0.12,
+            "raw_total": -0.1,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.07999999999999999,
-            "raw_applied_score": -0.15000000000000002,
+            "applied_score": 0.12,
+            "raw_applied_score": -0.1,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.176,
             "raw_trajectory_total": -0.03,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.05599999999999998,
-            "raw_cumulative_total": -0.18000000000000002,
+            "cumulative_total": 0.096,
+            "raw_cumulative_total": -0.13,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -8414,20 +8414,20 @@
               }
             },
             "calibration": {
-              "score": 0.25,
+              "score": 0.5,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.05,
+              "raw_score": 0.0,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.78,
+                "confidence": 0.62,
                 "is_correct": false,
                 "difficulty": "medium",
                 "agent_decision": "approve",
                 "correct_decision": "escalate",
-                "calibration_type": "confident_wrong"
+                "calibration_type": "wrong"
               }
             },
             "trajectory": null,
@@ -8511,7 +8511,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.78,
+                "confidence": 0.62,
                 "agent_decision": "approve",
                 "correct_decision": "escalate",
                 "difficulty": "medium",
@@ -8754,16 +8754,16 @@
     "policy_edge_cases": {
       "task_id": "policy_edge_cases",
       "num_scenarios": 20,
-      "average_task_grade": 0.42132499999999995,
-      "average_reward": 0.46950000000000003,
-      "average_raw_reward": 0.33687500000000004,
-      "total_task_grade": 8.426499999999999,
-      "total_reward": 9.39,
-      "total_raw_reward": 6.737500000000001,
+      "average_task_grade": 0.51095,
+      "average_reward": 0.5382,
+      "average_raw_reward": 0.42275,
+      "total_task_grade": 10.219,
+      "total_reward": 10.764000000000001,
+      "total_raw_reward": 8.455,
       "decision_distribution": {
-        "escalate": 5,
-        "approve": 8,
-        "warn": 4,
+        "escalate": 7,
+        "approve": 7,
+        "warn": 3,
         "remove": 3
       },
       "results": [
@@ -9217,9 +9217,9 @@
           "difficulty": "hard",
           "episode_reward": 0.2,
           "raw_episode_reward": -6.938893903907228e-18,
-          "task_grade": 0.05499999999999999,
+          "task_grade": 0.052,
           "decision": "approve",
-          "confidence": 0.65,
+          "confidence": 0.52,
           "investigation_plan": [
             "thread_context"
           ],
@@ -9331,7 +9331,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.65,
+                "confidence": 0.52,
                 "is_correct": false,
                 "difficulty": "hard",
                 "agent_decision": "approve",
@@ -9408,7 +9408,7 @@
               }
             },
             "calibration": {
-              "score": 0.05,
+              "score": 0.02,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -9416,15 +9416,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.65,
+                "confidence": 0.52,
                 "agent_decision": "approve",
                 "correct_decision": "escalate",
                 "difficulty": "hard",
                 "is_correct": false,
-                "calibration_type": "confident_wrong"
+                "calibration_type": "cautious_wrong"
               }
             },
-            "total": 0.05499999999999999
+            "total": 0.052
           },
           "status": "success",
           "failure": null
@@ -9959,10 +9959,12 @@
                 "union": [
                   "borderline_requires_judgment",
                   "clear_violation_no_exception",
-                  "hate_speech_coded"
+                  "hate_speech_coded",
+                  "repeat_offender"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "clear_violation_no_exception",
+                  "repeat_offender"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -10046,10 +10048,12 @@
                 "union": [
                   "borderline_requires_judgment",
                   "clear_violation_no_exception",
-                  "hate_speech_coded"
+                  "hate_speech_coded",
+                  "repeat_offender"
                 ],
                 "agent_only": [
-                  "clear_violation_no_exception"
+                  "clear_violation_no_exception",
+                  "repeat_offender"
                 ],
                 "truth_only": [
                   "borderline_requires_judgment",
@@ -10097,39 +10101,39 @@
           "scenario_id": "hard_gen_03_00",
           "task_id": "policy_edge_cases",
           "difficulty": "hard",
-          "episode_reward": 0.732,
-          "raw_episode_reward": 0.665,
-          "task_grade": 0.8799999999999999,
+          "episode_reward": 0.8560000000000001,
+          "raw_episode_reward": 0.8200000000000001,
+          "task_grade": 0.955,
           "decision": "approve",
           "confidence": 0.65,
           "investigation_plan": [
             "reporter_credibility",
-            "similar_precedents"
+            "linked_content_summary"
           ],
           "step_rewards": [
             0.176,
-            0.176,
-            0.78
+            0.24,
+            0.8400000000000001
           ],
           "steps_taken": 3,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.78,
-            "raw_total": 0.7250000000000001,
+            "total": 0.8400000000000001,
+            "raw_total": 0.8,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.78,
-            "raw_applied_score": 0.7250000000000001,
+            "applied_score": 0.8400000000000001,
+            "raw_applied_score": 0.8,
             "step_total": null,
             "raw_step_total": null,
-            "trajectory_total": 0.152,
-            "raw_trajectory_total": -0.06,
+            "trajectory_total": 0.21600000000000003,
+            "raw_trajectory_total": 0.020000000000000004,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.732,
-            "raw_cumulative_total": 0.665,
+            "cumulative_total": 0.8560000000000001,
+            "raw_cumulative_total": 0.8200000000000001,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -10167,27 +10171,26 @@
               }
             },
             "factor": {
-              "score": 0.5,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.075,
+              "raw_score": 0.15,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
                 "intersection": [
-                  "no_violation_found"
+                  "no_violation_found",
+                  "satire_or_parody"
                 ],
                 "union": [
                   "no_violation_found",
                   "satire_or_parody"
                 ],
                 "agent_only": [],
-                "truth_only": [
-                  "satire_or_parody"
-                ],
-                "jaccard": 0.5,
-                "factor_score": 0.075
+                "truth_only": [],
+                "jaccard": 1.0,
+                "factor_score": 0.15
               }
             },
             "efficiency": {
@@ -10252,7 +10255,7 @@
               }
             },
             "factor_overlap": {
-              "score": 0.5,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10261,17 +10264,16 @@
               "weight": 0.15,
               "details": {
                 "intersection": [
-                  "no_violation_found"
+                  "no_violation_found",
+                  "satire_or_parody"
                 ],
                 "union": [
                   "no_violation_found",
                   "satire_or_parody"
                 ],
                 "agent_only": [],
-                "truth_only": [
-                  "satire_or_parody"
-                ],
-                "jaccard": 0.5
+                "truth_only": [],
+                "jaccard": 1.0
               }
             },
             "efficiency": {
@@ -10304,7 +10306,7 @@
                 "calibration_type": "medium_confidence_correct"
               }
             },
-            "total": 0.8799999999999999
+            "total": 0.955
           },
           "status": "success",
           "failure": null
@@ -10313,11 +10315,11 @@
           "scenario_id": "hard_gen_05_00",
           "task_id": "policy_edge_cases",
           "difficulty": "hard",
-          "episode_reward": 0.27999999999999997,
-          "raw_episode_reward": 0.1,
-          "task_grade": 0.11,
-          "decision": "warn",
-          "confidence": 0.62,
+          "episode_reward": 0.8080000000000002,
+          "raw_episode_reward": 0.7600000000000001,
+          "task_grade": 0.885,
+          "decision": "escalate",
+          "confidence": 0.34,
           "investigation_plan": [
             "author_violations",
             "similar_precedents"
@@ -10325,27 +10327,27 @@
           "step_rewards": [
             0.24,
             0.176,
-            0.264
+            0.792
           ],
           "steps_taken": 3,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.264,
-            "raw_total": 0.08,
+            "total": 0.792,
+            "raw_total": 0.7400000000000001,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.264,
-            "raw_applied_score": 0.08,
+            "applied_score": 0.792,
+            "raw_applied_score": 0.7400000000000001,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.21600000000000003,
             "raw_trajectory_total": 0.020000000000000004,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.27999999999999997,
-            "raw_cumulative_total": 0.1,
+            "cumulative_total": 0.8080000000000002,
+            "raw_cumulative_total": 0.7600000000000001,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -10358,87 +10360,85 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.35616438356164387,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.08,
+              "raw_score": 0.55,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "warn",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "low",
+                "violation_match": true,
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "adjacent_decision",
-                "reward_score": 0.08,
-                "normalized_score": 0.15,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
+                "severity_match": true,
+                "grade": "perfect",
+                "reward_score": 0.55,
+                "normalized_score": 1.0,
+                "eligible_for_efficiency": true,
+                "decision_correct": true
               }
             },
             "factor": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.049999999999999996,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "borderline_requires_judgment"
+                ],
                 "union": [
                   "borderline_requires_judgment",
                   "new_account",
-                  "no_violation_found",
                   "spam_commercial"
                 ],
-                "agent_only": [
-                  "no_violation_found"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "borderline_requires_judgment",
                   "new_account",
                   "spam_commercial"
                 ],
-                "jaccard": 0.0,
-                "factor_score": 0.0
+                "jaccard": 0.3333333333333333,
+                "factor_score": 0.049999999999999996
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 0.6,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.06,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 2,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.06
               }
             },
             "calibration": {
-              "score": 0.5,
+              "score": 0.8999999999999999,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.08,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.62,
-                "is_correct": false,
+                "confidence": 0.34,
+                "is_correct": true,
                 "difficulty": "hard",
-                "agent_decision": "warn",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "calibration_type": "wrong"
+                "calibration_type": "appropriate_uncertainty"
               }
             },
             "trajectory": null,
@@ -10447,7 +10447,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.15,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10455,24 +10455,24 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "warn",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "low",
+                "violation_match": true,
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "adjacent_decision",
-                "reward_score": 0.08,
-                "normalized_score": 0.15,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
+                "severity_match": true,
+                "grade": "perfect",
+                "reward_score": 0.55,
+                "normalized_score": 1.0,
+                "eligible_for_efficiency": true,
+                "decision_correct": true
               }
             },
             "factor_overlap": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10480,26 +10480,24 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "borderline_requires_judgment"
+                ],
                 "union": [
                   "borderline_requires_judgment",
                   "new_account",
-                  "no_violation_found",
                   "spam_commercial"
                 ],
-                "agent_only": [
-                  "no_violation_found"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "borderline_requires_judgment",
                   "new_account",
                   "spam_commercial"
                 ],
-                "jaccard": 0.0
+                "jaccard": 0.3333333333333333
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 0.7,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10508,11 +10506,11 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 2,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
-              "score": 0.05,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10520,15 +10518,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.62,
-                "agent_decision": "warn",
+                "confidence": 0.34,
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
                 "difficulty": "hard",
-                "is_correct": false,
-                "calibration_type": "confident_wrong"
+                "is_correct": true,
+                "calibration_type": "appropriate_uncertainty"
               }
             },
-            "total": 0.11
+            "total": 0.885
           },
           "status": "success",
           "failure": null
@@ -10537,11 +10535,11 @@
           "scenario_id": "hard_gen_05_01",
           "task_id": "policy_edge_cases",
           "difficulty": "hard",
-          "episode_reward": 0.13599999999999998,
-          "raw_episode_reward": -0.08,
-          "task_grade": 0.002,
-          "decision": "approve",
-          "confidence": 0.58,
+          "episode_reward": 0.8080000000000002,
+          "raw_episode_reward": 0.7600000000000001,
+          "task_grade": 0.885,
+          "decision": "escalate",
+          "confidence": 0.34,
           "investigation_plan": [
             "author_violations",
             "similar_precedents"
@@ -10549,27 +10547,27 @@
           "step_rewards": [
             0.24,
             0.176,
-            0.12
+            0.792
           ],
           "steps_taken": 3,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.12,
-            "raw_total": -0.1,
+            "total": 0.792,
+            "raw_total": 0.7400000000000001,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.12,
-            "raw_applied_score": -0.1,
+            "applied_score": 0.792,
+            "raw_applied_score": 0.7400000000000001,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.21600000000000003,
             "raw_trajectory_total": 0.020000000000000004,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.13599999999999998,
-            "raw_cumulative_total": -0.08,
+            "cumulative_total": 0.8080000000000002,
+            "raw_cumulative_total": 0.7600000000000001,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -10582,87 +10580,85 @@
             "action_type": null,
             "trajectory_cap": null,
             "decision": {
-              "score": 0.10958904109589039,
+              "score": 1.0,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": -0.1,
+              "raw_score": 0.55,
               "raw_max": 0.55,
               "raw_min": -0.18,
               "weight": null,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "none",
+                "violation_match": true,
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "wrong_decision",
-                "reward_score": -0.1,
-                "normalized_score": 0.0,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
+                "severity_match": true,
+                "grade": "perfect",
+                "reward_score": 0.55,
+                "normalized_score": 1.0,
+                "eligible_for_efficiency": true,
+                "decision_correct": true
               }
             },
             "factor": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.049999999999999996,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "borderline_requires_judgment"
+                ],
                 "union": [
                   "borderline_requires_judgment",
                   "new_account",
-                  "no_violation_found",
                   "spam_commercial"
                 ],
-                "agent_only": [
-                  "no_violation_found"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "borderline_requires_judgment",
                   "new_account",
                   "spam_commercial"
                 ],
-                "jaccard": 0.0,
-                "factor_score": 0.0
+                "jaccard": 0.3333333333333333,
+                "factor_score": 0.049999999999999996
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 0.6,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.06,
               "raw_max": 0.1,
               "raw_min": null,
               "weight": null,
               "details": {
                 "actions_taken": 2,
-                "eligible_for_efficiency": false,
-                "reason": "requires_correct_decision_and_violation"
+                "eligible_for_efficiency": true,
+                "efficiency_bonus": 0.06
               }
             },
             "calibration": {
-              "score": 0.5,
+              "score": 0.8999999999999999,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0,
+              "raw_score": 0.08,
               "raw_max": 0.1,
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.58,
-                "is_correct": false,
+                "confidence": 0.34,
+                "is_correct": true,
                 "difficulty": "hard",
-                "agent_decision": "approve",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "calibration_type": "wrong"
+                "calibration_type": "appropriate_uncertainty"
               }
             },
             "trajectory": null,
@@ -10671,7 +10667,7 @@
           },
           "final_grade_breakdown": {
             "decision": {
-              "score": 0.0,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10679,24 +10675,24 @@
               "raw_min": null,
               "weight": 0.7,
               "details": {
-                "agent_decision": "approve",
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
-                "decision_match": false,
-                "agent_violation": "none",
+                "decision_match": true,
+                "agent_violation": "5.1",
                 "correct_violation": "5.1",
-                "violation_match": false,
-                "agent_severity": "none",
+                "violation_match": true,
+                "agent_severity": "medium",
                 "correct_severity": "medium",
-                "severity_match": false,
-                "grade": "wrong_decision",
-                "reward_score": -0.1,
-                "normalized_score": 0.0,
-                "eligible_for_efficiency": false,
-                "decision_correct": false
+                "severity_match": true,
+                "grade": "perfect",
+                "reward_score": 0.55,
+                "normalized_score": 1.0,
+                "eligible_for_efficiency": true,
+                "decision_correct": true
               }
             },
             "factor_overlap": {
-              "score": 0.0,
+              "score": 0.3333333333333333,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10704,26 +10700,24 @@
               "raw_min": null,
               "weight": 0.15,
               "details": {
-                "intersection": [],
+                "intersection": [
+                  "borderline_requires_judgment"
+                ],
                 "union": [
                   "borderline_requires_judgment",
                   "new_account",
-                  "no_violation_found",
                   "spam_commercial"
                 ],
-                "agent_only": [
-                  "no_violation_found"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "borderline_requires_judgment",
                   "new_account",
                   "spam_commercial"
                 ],
-                "jaccard": 0.0
+                "jaccard": 0.3333333333333333
               }
             },
             "efficiency": {
-              "score": 0.0,
+              "score": 0.7,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10732,11 +10726,11 @@
               "weight": 0.05,
               "details": {
                 "actions_taken": 2,
-                "eligible_for_efficiency": false
+                "eligible_for_efficiency": true
               }
             },
             "calibration": {
-              "score": 0.02,
+              "score": 1.0,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -10744,15 +10738,15 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.58,
-                "agent_decision": "approve",
+                "confidence": 0.34,
+                "agent_decision": "escalate",
                 "correct_decision": "escalate",
                 "difficulty": "hard",
-                "is_correct": false,
-                "calibration_type": "cautious_wrong"
+                "is_correct": true,
+                "calibration_type": "appropriate_uncertainty"
               }
             },
-            "total": 0.002
+            "total": 0.885
           },
           "status": "success",
           "failure": null
@@ -10765,7 +10759,7 @@
           "raw_episode_reward": 0.7800000000000001,
           "task_grade": 0.885,
           "decision": "approve",
-          "confidence": 0.89,
+          "confidence": 0.88,
           "investigation_plan": [
             "reporter_credibility",
             "linked_content_summary"
@@ -10879,7 +10873,7 @@
               "raw_min": -0.1,
               "weight": null,
               "details": {
-                "confidence": 0.89,
+                "confidence": 0.88,
                 "is_correct": true,
                 "difficulty": "hard",
                 "agent_decision": "approve",
@@ -10964,7 +10958,7 @@
               "raw_min": null,
               "weight": 0.1,
               "details": {
-                "confidence": 0.89,
+                "confidence": 0.88,
                 "agent_decision": "approve",
                 "correct_decision": "approve",
                 "difficulty": "hard",
@@ -12093,9 +12087,9 @@
           "scenario_id": "hard_remove_02",
           "task_id": "policy_edge_cases",
           "difficulty": "hard",
-          "episode_reward": 0.19,
-          "raw_episode_reward": -0.012499999999999997,
-          "task_grade": 0.042499999999999996,
+          "episode_reward": 0.24,
+          "raw_episode_reward": 0.04999999999999999,
+          "task_grade": 0.105,
           "decision": "warn",
           "confidence": 0.72,
           "investigation_plan": [
@@ -12105,27 +12099,27 @@
           "step_rewards": [
             0.24,
             0.24,
-            0.11000000000000001
+            0.15999999999999998
           ],
           "steps_taken": 3,
           "final_reward_breakdown": {
             "reward_type": "terminal",
-            "total": 0.11000000000000001,
-            "raw_total": -0.1125,
+            "total": 0.15999999999999998,
+            "raw_total": -0.05000000000000002,
             "score": null,
             "raw_score": null,
             "requested_score": null,
             "raw_requested_score": null,
-            "applied_score": 0.11000000000000001,
-            "raw_applied_score": -0.1125,
+            "applied_score": 0.15999999999999998,
+            "raw_applied_score": -0.05000000000000002,
             "step_total": null,
             "raw_step_total": null,
             "trajectory_total": 0.27999999999999997,
             "raw_trajectory_total": 0.1,
             "episode_total": null,
             "raw_episode_total": null,
-            "cumulative_total": 0.19,
-            "raw_cumulative_total": -0.012499999999999997,
+            "cumulative_total": 0.24,
+            "raw_cumulative_total": 0.04999999999999999,
             "theoretical_terminal_max": 0.9199999999999999,
             "theoretical_terminal_min": 0.0,
             "raw_theoretical_terminal_max": 0.9,
@@ -12149,7 +12143,7 @@
                 "agent_decision": "warn",
                 "correct_decision": "remove",
                 "decision_match": false,
-                "agent_violation": "none",
+                "agent_violation": "1.2",
                 "correct_violation": "2.1",
                 "violation_match": false,
                 "agent_severity": "low",
@@ -12163,32 +12157,29 @@
               }
             },
             "factor": {
-              "score": 0.25,
+              "score": 0.6666666666666666,
               "max": 1.0,
               "min": 0.0,
-              "raw_score": 0.0375,
+              "raw_score": 0.09999999999999999,
               "raw_max": 0.15,
               "raw_min": null,
               "weight": null,
               "details": {
                 "intersection": [
+                  "clear_violation_no_exception",
                   "repeat_offender"
                 ],
                 "union": [
-                  "auto_flag_low_confidence",
                   "clear_violation_no_exception",
                   "hate_speech_coded",
                   "repeat_offender"
                 ],
-                "agent_only": [
-                  "auto_flag_low_confidence"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "clear_violation_no_exception",
                   "hate_speech_coded"
                 ],
-                "jaccard": 0.25,
-                "factor_score": 0.0375
+                "jaccard": 0.6666666666666666,
+                "factor_score": 0.09999999999999999
               }
             },
             "efficiency": {
@@ -12239,7 +12230,7 @@
                 "agent_decision": "warn",
                 "correct_decision": "remove",
                 "decision_match": false,
-                "agent_violation": "none",
+                "agent_violation": "1.2",
                 "correct_violation": "2.1",
                 "violation_match": false,
                 "agent_severity": "low",
@@ -12253,7 +12244,7 @@
               }
             },
             "factor_overlap": {
-              "score": 0.25,
+              "score": 0.6666666666666666,
               "max": null,
               "min": null,
               "raw_score": null,
@@ -12262,22 +12253,19 @@
               "weight": 0.15,
               "details": {
                 "intersection": [
+                  "clear_violation_no_exception",
                   "repeat_offender"
                 ],
                 "union": [
-                  "auto_flag_low_confidence",
                   "clear_violation_no_exception",
                   "hate_speech_coded",
                   "repeat_offender"
                 ],
-                "agent_only": [
-                  "auto_flag_low_confidence"
-                ],
+                "agent_only": [],
                 "truth_only": [
-                  "clear_violation_no_exception",
                   "hate_speech_coded"
                 ],
-                "jaccard": 0.25
+                "jaccard": 0.6666666666666666
               }
             },
             "efficiency": {
@@ -12310,7 +12298,7 @@
                 "calibration_type": "confident_wrong"
               }
             },
-            "total": 0.042499999999999996
+            "total": 0.105
           },
           "status": "success",
           "failure": null
@@ -13008,7 +12996,7 @@
           "confidence": 0.65,
           "investigation_plan": [
             "author_profile",
-            "thread_context"
+            "linked_content_summary"
           ],
           "step_rewards": [
             0.176,
@@ -13231,12 +13219,12 @@
       "failure_details": []
     }
   },
-  "overall_average_task_grade": 0.5797249999999999,
-  "overall_average_reward": 0.5789666666666666,
-  "overall_average_raw_reward": 0.47370833333333334,
-  "overall_total_task_grade": 34.7835,
-  "overall_total_reward": 34.738,
-  "overall_total_raw_reward": 28.4225,
+  "overall_average_task_grade": 0.6020666666666666,
+  "overall_average_reward": 0.5991666666666667,
+  "overall_average_raw_reward": 0.49895833333333334,
+  "overall_total_task_grade": 36.123999999999995,
+  "overall_total_reward": 35.95,
+  "overall_total_raw_reward": 29.9375,
   "total_scenarios": 60,
-  "elapsed_seconds": 141.49
+  "elapsed_seconds": 175.74
 }

@@ -1,6 +1,18 @@
 # SafeSpace Design Document
 
-This document explains the design decisions behind SafeSpace, a content moderation RL environment. It serves as both an internal reference and a public explanation of the benchmark’s design choices.
+This document explains the design decisions behind SafeSpace, a content moderation RL environment. It serves as both an internal reference and a public explanation of the benchmark's design choices.
+
+For setup instructions, action and observation spaces, and usage examples, see `README.md`. This document is focused on benchmark rationale: why the environment is structured this way, how reward and grading were chosen, and what design tradeoffs shape the evaluation.
+
+## Executive Summary
+
+SafeSpace is built around five core design choices:
+
+1. **Moderation is treated as a sequential decision problem, not a one-shot classifier.** Agents must decide when context is necessary and when acting immediately is better.
+2. **Reward and evaluation are aligned.** Training reward and benchmark grading preserve the same ordering of outcomes so agents are not incentivized to exploit mismatched objectives.
+3. **The benchmark is designed to resist easy gaming.** Adjacent decisions receive limited credit, calibration matters, and scenario distributions are balanced enough to discourage trivial hedging strategies.
+4. **Deterministic grading is a feature, not a limitation.** SafeSpace avoids LLM judges in order to maximize reproducibility, auditability, and low-cost evaluation.
+5. **The environment emphasizes realistic moderation ambiguity within a constrained scope.** Context dependence, policy exceptions, repeat-offender logic, and escalation are in scope; multimodal reasoning and multi-agent workflows are intentionally out of scope for now.
 
 ---
 
@@ -100,11 +112,10 @@ We model three concrete moderation workflows rather than three abstract buckets:
 
 We separate the environment into two evaluation layers:
 
-- **Canonical benchmark:** 60 curated scenarios, 20 per task, defined in `server/data/benchmark_manifest.json`
-- **Full corpus:** 367 total scenarios used for broader regression testing and stress coverage
+- **Canonical benchmark:** 60 authored submission scenarios, 20 per task, defined in `server/data/benchmark_manifest.json`
+- **Full corpus:** 367 total scenarios used for broader regression testing and stress coverage, including non-canonical procedural variants
 
 The canonical benchmark is the headline score we report in the README and baseline script. The full corpus still matters, but we do not treat metadata-only procedural variants as benchmark depth.
-Manifest version `2026-04-03.2` also rebalances the hard split away from a remove-heavy concentration by adding one escalation case, one approve satire case, and one warn coded-hate case from the existing corpus.
 
 ### Decision Distribution (Hard Tier)
 
@@ -144,7 +155,7 @@ This is low enough to discourage always-escalate strategies while still rewardin
 
 ### Repeat Offender Scenarios
 
-17 hard scenarios feature "borderline content + repeat offender history = remove". This tests whether agents can integrate author history with surface content analysis, not just pattern-match on text.
+A substantial subset of hard scenarios feature borderline content where repeat-offender history pushes the correct outcome toward `remove`. This tests whether agents can integrate author history with surface content analysis, not just pattern-match on text.
 
 ### Calibration Mechanics
 
@@ -236,30 +247,7 @@ We evaluate agents on:
 
 ### Reference Runs
 
-Primary reference artifact:
-
-`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
-
-This run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7` on manifest version `2026-04-03.2`.
-
-| Tier | Avg Task Grade | Avg Reward | Avg Raw Reward |
-|------|----------------|------------|----------------|
-| Easy | 0.8244 | 0.7760 | 0.7200 |
-| Medium | 0.4934 | 0.4914 | 0.3643 |
-| Hard | 0.4213 | 0.4695 | 0.3369 |
-
-Secondary open-weight comparison artifact:
-
-`artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
-
-This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `OPENAI_SEED=7`.
-
-| Model | Avg Task Grade | Avg Reward | Avg Raw Reward |
-|-------|----------------|------------|----------------|
-| `gpt-5.4` | 0.5797 | 0.5790 | 0.4737 |
-| `Qwen/Qwen2.5-72B-Instruct` | 0.4775 | 0.5098 | 0.3873 |
-
-These numbers are reference points, not normative targets. The benchmark remains intentionally challenging on context-dependent and hard policy-review cases, and score movement should be interpreted relative to the same manifest and inference setup.
+Reference runs are useful calibration points, but they are not the benchmark's core design rationale. Exact baseline numbers are best interpreted relative to a specific manifest version, model endpoint, and inference configuration, so the current benchmark snapshot is included in the appendix below rather than treated as a permanent part of the design argument.
 
 ---
 
@@ -296,3 +284,50 @@ SafeSpace is designed around these principles:
 5. **Principled defaults**: Episode budget, trajectory caps, score ranges all have explicit rationale
 
 The goal is an environment that teaches real moderation skills, not pattern matching or hedging strategies.
+
+---
+
+## Appendix: Current Benchmark Snapshot
+
+This appendix captures the current shipped benchmark snapshot. It is intentionally separated from the main design rationale because these details may change over time as the corpus, manifest, or reference runs evolve.
+
+### Current Manifest Snapshot
+
+- Canonical benchmark: 60 authored submission scenarios, 20 per task
+- Full corpus: 367 total scenarios, including broader regression/stress coverage outside the canonical benchmark
+- Current manifest version: `2026-04-03.2`
+
+This manifest rebalances the hard split away from an overly remove-heavy concentration while preserving the same task framing and grading philosophy described above.
+
+### Current Reference Runs
+
+Primary reference artifact:
+
+`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
+
+This canonical reference run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7`.
+
+| Tier | Avg Task Grade | Avg Reward | Avg Raw Reward |
+|------|----------------|------------|----------------|
+| Easy | 0.8327 | 0.7845 | 0.7306 |
+| Medium | 0.4625 | 0.4748 | 0.3435 |
+| Hard | 0.5110 | 0.5382 | 0.4228 |
+
+Overall canonical averages:
+
+- Avg task grade: `0.6021`
+- Avg reward: `0.5992`
+- Avg raw reward: `0.4990`
+
+Secondary open-weight comparison artifact:
+
+- `artifacts/baselines/canonical_qwen2.5_72b_hf_seed7_manifest_2026-04-03.2.json`
+
+This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router with `OPENAI_SEED=7`.
+
+| Model | Avg Task Grade | Avg Reward | Avg Raw Reward |
+|-------|----------------|------------|----------------|
+| `gpt-5.4` | 0.6021 | 0.5992 | 0.4990 |
+| `Qwen/Qwen2.5-72B-Instruct` | 0.4810 | 0.4994 | 0.3742 |
+
+These numbers are reference points, not normative targets. The benchmark remains intentionally challenging on context-dependent and hard policy-review cases, and score movement should be interpreted relative to the same manifest and inference setup.
