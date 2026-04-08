@@ -355,7 +355,7 @@ Context-depth distribution:
 
 Public score semantics:
 
-- Final episode `score` in the `[END]` line is always `task_grade`, which lives in `[0.0, 1.0]`
+- Final episode `score` in the `[END]` line is always `task_grade`, which lives strictly inside `(0.0, 1.0)`
 - Public `reward` values are normalized into `[0.0, 1.0]`
 - Raw signed reward values are preserved in the JSON summary, state, and reward breakdown payloads
 
@@ -375,21 +375,21 @@ The evaluator emits stdout in the following single-line format:
 
 Primary reference artifact:
 
-`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
+`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-08.1.json`
 
 This canonical reference run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7`.
 
 | Task | Difficulty | Avg Task Grade | Avg Reward | Avg Raw Reward | Decision Distribution |
 |------|------------|----------------|------------|----------------|----------------------|
-| `clear_violations` | easy | `0.8327` | `0.7845` | `0.7306` | remove: 10, approve: 9, warn: 1 |
-| `context_dependent` | medium | `0.4625` | `0.4748` | `0.3435` | approve: 10, warn: 6, remove: 4 |
-| `policy_edge_cases` | hard | `0.5110` | `0.5382` | `0.4228` | escalate: 7, approve: 7, warn: 3, remove: 3 |
+| `clear_violations` | easy | `0.8140` | `0.7665` | `0.7081` | remove: 9, approve: 9, warn: 2 |
+| `context_dependent` | medium | `0.4579` | `0.4646` | `0.3308` | approve: 12, remove: 4, warn: 4 |
+| `policy_edge_cases` | hard | `0.5177` | `0.5498` | `0.4372` | escalate: 8, approve: 6, warn: 3, remove: 3 |
 
 Overall:
 
-- Avg task grade: `0.6021`
-- Avg reward: `0.5992`
-- Avg raw reward: `0.4990`
+- Avg task grade: `0.5965`
+- Avg reward: `0.5936`
+- Avg raw reward: `0.4920`
 - Failed episodes: `0`
 
 Secondary open-weight comparison artifact:
@@ -400,7 +400,7 @@ This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router
 
 | Model | Avg Task Grade | Avg Reward | Avg Raw Reward | Failed Episodes |
 |-------|----------------|------------|----------------|-----------------|
-| `gpt-5.4` | **`0.6021`** | `0.5992` | `0.4990` | `0` |
+| `gpt-5.4` | **`0.5965`** | `0.5936` | `0.4920` | `0` |
 | `Qwen/Qwen2.5-72B-Instruct` | `0.4810` | `0.4994` | `0.3742` | `0` |
 
 </details>

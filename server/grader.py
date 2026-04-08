@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Set, Tuple
 
 
+PUBLIC_TASK_GRADE_EPSILON = 0.001
+
 ADJACENT_DECISIONS: List[Tuple[str, str]] = [
     ("escalate", "warn"),
     ("warn", "escalate"),
@@ -42,6 +44,19 @@ EFFICIENCY_GRADE_TABLE = {
     4: 0.40,
     5: 0.20,
 }
+
+
+def clamp_public_task_grade(score: float | None) -> float:
+    """Clamp a public task grade into the validator-safe open interval (0, 1)."""
+    if score is None:
+        return PUBLIC_TASK_GRADE_EPSILON
+
+    bounded = max(0.0, min(1.0, float(score)))
+    if bounded <= 0.0:
+        return PUBLIC_TASK_GRADE_EPSILON
+    if bounded >= 1.0:
+        return 1.0 - PUBLIC_TASK_GRADE_EPSILON
+    return bounded
 
 
 def is_adjacent_decision(agent_decision: str, correct_decision: str) -> bool:
@@ -220,7 +235,7 @@ def compute_task_grade(
     actions_taken: int,
     difficulty: str,
 ) -> Tuple[float, Dict[str, Any]]:
-    """Return the normalized episode grade in [0.0, 1.0]."""
+    """Return the public normalized episode grade in the open interval (0, 1)."""
     decision_details = evaluate_decision(
         agent_decision=agent_decision.get("decision", ""),
         agent_violation=agent_decision.get("primary_violation", ""),
@@ -242,13 +257,13 @@ def compute_task_grade(
         difficulty=difficulty,
     )
 
-    total = (
+    raw_total = (
         0.70 * decision_details["normalized_score"]
         + 0.15 * factor_jaccard
         + 0.05 * efficiency_grade
         + 0.10 * calibration_grade
     )
-    total = max(0.0, min(1.0, total))
+    total = clamp_public_task_grade(raw_total)
 
     breakdown = {
         "decision": {
@@ -274,6 +289,9 @@ def compute_task_grade(
             "score": calibration_grade,
             "details": calibration_details,
         },
+        "raw_total": raw_total,
         "total": total,
     }
+    if total != raw_total:
+        breakdown["public_total_adjustment"] = total - raw_total
     return total, breakdown

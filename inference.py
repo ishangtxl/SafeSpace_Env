@@ -26,6 +26,7 @@ from openai import OpenAI
 try:
     from .client import SafeSpaceEnv
     from .models import ModerationAction, ModerationObservation
+    from .server.grader import clamp_public_task_grade
     from .server.scenarios import (
         get_all_scenarios,
         get_benchmark_scenario_ids,
@@ -35,6 +36,7 @@ try:
 except ImportError:  # pragma: no cover
     from client import SafeSpaceEnv
     from models import ModerationAction, ModerationObservation
+    from server.grader import clamp_public_task_grade
     from server.scenarios import (
         get_all_scenarios,
         get_benchmark_scenario_ids,
@@ -765,16 +767,14 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     rewards_text = ",".join(f"{reward:.2f}" for reward in rewards)
     print(
         f"[END] success={format_log_bool(success)} steps={steps} "
-        f"score={score:.2f} rewards={rewards_text}",
+        f"score={score:.3f} rewards={rewards_text}",
         flush=True,
     )
 
 
 def clamp_score(score: Optional[float]) -> float:
-    """Clamp the final score into the public [0, 1] range."""
-    if score is None:
-        return 0.0
-    return max(0.0, min(1.0, float(score)))
+    """Clamp the final score into the public validator-safe open interval (0, 1)."""
+    return clamp_public_task_grade(score)
 
 
 def resolve_env_target(explicit_base_url: Optional[str]) -> Dict[str, Optional[str]]:
@@ -1352,7 +1352,7 @@ def build_failed_episode_result(
     error: str,
     difficulty: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Build a conservative zero-scored result for a failed episode."""
+    """Build a conservative low-scored result for a failed episode."""
     resolved_task_id = task_id or infer_task_id(scenario_id)
     resolved_difficulty = difficulty or infer_difficulty(resolved_task_id, scenario_id)
     failure = {
@@ -1367,7 +1367,7 @@ def build_failed_episode_result(
         "difficulty": resolved_difficulty,
         "episode_reward": 0.0,
         "raw_episode_reward": 0.0,
-        "task_grade": 0.0,
+        "task_grade": clamp_score(0.0),
         "decision": None,
         "confidence": None,
         "investigation_plan": [],
@@ -1396,7 +1396,7 @@ async def run_episode(
     step_rewards: List[float] = []
     steps_taken = 0
     failure_exc: Optional[EpisodeExecutionError] = None
-    task_grade = 0.0
+    task_grade = clamp_score(0.0)
     episode_reward = 0.0
     raw_episode_reward = 0.0
 
@@ -1519,7 +1519,7 @@ async def run_episode(
             getattr(state, "raw_episode_reward", episode_reward)
         )
         task_grade = clamp_score(
-            observation.task_grade if observation and observation.task_grade is not None else 0.0
+            observation.task_grade if observation and observation.task_grade is not None else None
         )
 
         return {
@@ -1570,7 +1570,7 @@ def summarize_task(task_id: str, results: List[Dict[str, Any]]) -> Dict[str, Any
     return {
         "task_id": task_id,
         "num_scenarios": len(results),
-        "average_task_grade": total_task_grade / len(results) if results else 0.0,
+        "average_task_grade": clamp_score(total_task_grade / len(results)) if results else clamp_score(None),
         "average_reward": total_reward / len(results) if results else 0.0,
         "average_raw_reward": total_raw_reward / len(results) if results else 0.0,
         "total_task_grade": total_task_grade,
@@ -1714,7 +1714,7 @@ async def _async_main(args: argparse.Namespace) -> None:
         "limit_per_task": args.limit_per_task,
         "tasks": task_summaries,
         "overall_average_task_grade": (
-            total_task_grade / total_scenarios if total_scenarios else 0.0
+            clamp_score(total_task_grade / total_scenarios) if total_scenarios else clamp_score(None)
         ),
         "overall_average_reward": (
             total_reward / total_scenarios if total_scenarios else 0.0

@@ -241,7 +241,7 @@ The canonical benchmark path is the typed `SafeSpaceEnv` WebSocket client, which
 ### Success Metrics
 
 We evaluate agents on:
-1. **Task grade** (normalized 0-1): Weighted combination of decision, factors, efficiency, calibration
+1. **Task grade** (normalized into the open interval 0-1): Weighted combination of decision, factors, efficiency, calibration
 2. **Per-decision-type accuracy**: Ensures agents learn all four outcomes
 3. **Calibration curve**: Confidence vs. actual correctness
 
@@ -303,21 +303,21 @@ This manifest rebalances the hard split away from an overly remove-heavy concent
 
 Primary reference artifact:
 
-`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-03.2.json`
+`artifacts/baselines/canonical_gpt-5.4_azure_seed7_manifest_2026-04-08.1.json`
 
 This canonical reference run uses `gpt-5.4` through an OpenAI-compatible Azure AI Foundry endpoint with `OPENAI_SEED=7`.
 
 | Tier | Avg Task Grade | Avg Reward | Avg Raw Reward |
 |------|----------------|------------|----------------|
-| Easy | 0.8327 | 0.7845 | 0.7306 |
-| Medium | 0.4625 | 0.4748 | 0.3435 |
-| Hard | 0.5110 | 0.5382 | 0.4228 |
+| Easy | 0.8140 | 0.7665 | 0.7081 |
+| Medium | 0.4579 | 0.4646 | 0.3308 |
+| Hard | 0.5177 | 0.5498 | 0.4372 |
 
 Overall canonical averages:
 
-- Avg task grade: `0.6021`
-- Avg reward: `0.5992`
-- Avg raw reward: `0.4990`
+- Avg task grade: `0.5965`
+- Avg reward: `0.5936`
+- Avg raw reward: `0.4920`
 
 Secondary open-weight comparison artifact:
 
@@ -327,7 +327,7 @@ This comparison run uses `Qwen/Qwen2.5-72B-Instruct` via the Hugging Face Router
 
 | Model | Avg Task Grade | Avg Reward | Avg Raw Reward |
 |-------|----------------|------------|----------------|
-| `gpt-5.4` | 0.6021 | 0.5992 | 0.4990 |
+| `gpt-5.4` | 0.5965 | 0.5936 | 0.4920 |
 | `Qwen/Qwen2.5-72B-Instruct` | 0.4810 | 0.4994 | 0.3742 |
 
 These numbers are reference points, not normative targets. The benchmark remains intentionally challenging on context-dependent and hard policy-review cases, and score movement should be interpreted relative to the same manifest and inference setup.

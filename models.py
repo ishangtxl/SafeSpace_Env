@@ -275,7 +275,7 @@ class TaskGradeBreakdown(BaseModel):
     calibration: Optional[BreakdownComponent] = Field(
         default=None, description="Calibration grading component"
     )
-    total: float = Field(default=0.0, description="Normalized task grade in [0, 1]")
+    total: float = Field(default=0.0, description="Normalized task grade in the open interval (0, 1)")
 
 
 # ============================================================================
@@ -394,7 +394,7 @@ class ModerationObservation(Observation):
         default=None,
         ge=0.0,
         le=1.0,
-        description="Deterministic normalized task grade for the current episode",
+        description="Deterministic normalized task grade for the current episode, strictly between 0 and 1 on terminal steps",
     )
     grade_breakdown: Optional[TaskGradeBreakdown] = Field(
         default=None,

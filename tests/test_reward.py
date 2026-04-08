@@ -17,7 +17,10 @@ from content_moderation_env.server.reward import (
     compute_no_decision_penalty,
 )
 from content_moderation_env.server.grader import (
+    PUBLIC_TASK_GRADE_EPSILON,
     compute_calibration_grade,
+    clamp_public_task_grade,
+    compute_task_grade,
     grade_decision,
     grade_factors,
     compute_factor_jaccard,
@@ -352,6 +355,67 @@ class TestCalibrationGrade:
         )
         assert score == 0.02
         assert details["calibration_type"] == "cautious_wrong"
+
+
+class TestPublicTaskGrade:
+    """Tests for public task-grade interval handling."""
+
+    def test_clamp_public_task_grade_preserves_interior_values(self):
+        """Interior task grades should pass through unchanged."""
+        assert clamp_public_task_grade(0.42) == pytest.approx(0.42)
+
+    def test_clamp_public_task_grade_moves_boundaries_inward(self):
+        """Exact endpoints should be nudged into the open interval."""
+        assert clamp_public_task_grade(0.0) == pytest.approx(PUBLIC_TASK_GRADE_EPSILON)
+        assert clamp_public_task_grade(1.0) == pytest.approx(1.0 - PUBLIC_TASK_GRADE_EPSILON)
+
+    def test_compute_task_grade_keeps_perfect_episode_below_one(self):
+        """Perfect episodes should remain validator-safe without changing rank order."""
+        score, breakdown = compute_task_grade(
+            agent_decision={
+                "decision": "remove",
+                "primary_violation": "5.1",
+                "severity": "high",
+                "confidence": 0.95,
+                "key_factors": ["spam_commercial", "clear_violation_no_exception"],
+            },
+            ground_truth={
+                "correct_decision": "remove",
+                "primary_violation": "5.1",
+                "severity": "high",
+                "key_factors": ["spam_commercial", "clear_violation_no_exception"],
+            },
+            actions_taken=0,
+            difficulty="easy",
+        )
+
+        assert 0.0 < score < 1.0
+        assert score == pytest.approx(1.0 - PUBLIC_TASK_GRADE_EPSILON)
+        assert breakdown["raw_total"] == pytest.approx(1.0)
+
+    def test_compute_task_grade_keeps_worst_case_above_zero(self):
+        """Worst-case public grades should still be strictly positive."""
+        score, breakdown = compute_task_grade(
+            agent_decision={
+                "decision": "approve",
+                "primary_violation": "none",
+                "severity": "none",
+                "confidence": 0.95,
+                "key_factors": ["no_violation_found"],
+            },
+            ground_truth={
+                "correct_decision": "remove",
+                "primary_violation": "4.1",
+                "severity": "critical",
+                "key_factors": ["explicit_threat"],
+            },
+            actions_taken=0,
+            difficulty="easy",
+        )
+
+        assert 0.0 < score < 1.0
+        assert score == pytest.approx(PUBLIC_TASK_GRADE_EPSILON)
+        assert breakdown["raw_total"] == pytest.approx(0.0)
 
 
 class TestFullReward:

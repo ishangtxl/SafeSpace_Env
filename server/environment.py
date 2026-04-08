@@ -32,7 +32,7 @@ except (ModuleNotFoundError, ImportError):  # pragma: no cover
         TriggerInfo,
     )
 
-from .grader import compute_task_grade
+from .grader import clamp_public_task_grade, compute_task_grade
 from .policy import FACTOR_LIST, PLATFORM_POLICY
 from .reward import (
     MAX_EPISODE_REWARD,
@@ -320,13 +320,15 @@ class SafeSpaceEnvironment(Environment):
         self._state.decision_made = True
         self._state.done = True
         self._episode_done = True
-        self._last_task_grade = 0.0
+        self._last_task_grade = clamp_public_task_grade(0.0)
         self._last_grade_breakdown = {
             "decision": {"weight": 0.70, "score": 0.0, "details": {"reason": "no_decision"}},
             "factor_overlap": {"weight": 0.15, "score": 0.0, "details": {}},
             "efficiency": {"weight": 0.05, "score": 0.0, "details": {}},
             "calibration": {"weight": 0.10, "score": 0.0, "details": {}},
-            "total": 0.0,
+            "raw_total": 0.0,
+            "public_total_adjustment": self._last_task_grade,
+            "total": self._last_task_grade,
         }
         combined_breakdown = {
             "reward_type": "trajectory_terminal",

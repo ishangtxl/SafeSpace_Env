@@ -213,7 +213,7 @@ def test_run_episode_uses_cumulative_episode_reward(monkeypatch, capsys):
         "[START] task=context_dependent env=safespace model=test-model",
         "[STEP] step=1 action=request_thread_context reward=0.04 done=false error=null",
         "[STEP] step=2 action=decide:approve:none:none:0.70 reward=0.60 done=true error=null",
-        "[END] success=true steps=2 score=0.81 rewards=0.04,0.60",
+        "[END] success=true steps=2 score=0.810 rewards=0.04,0.60",
     ]
 
 
@@ -225,8 +225,8 @@ def test_infer_task_and_difficulty_from_scenario_prefix():
     assert infer_difficulty(None, "hard_plus_005") == "hard"
 
 
-def test_build_failed_episode_result_uses_zero_scored_fallbacks():
-    """Failed episodes should contribute conservative zero scores."""
+def test_build_failed_episode_result_uses_open_interval_fallbacks():
+    """Failed episodes should contribute conservative validator-safe scores."""
     result = build_failed_episode_result(
         task_id="context_dependent",
         scenario_id="med_fail",
@@ -238,7 +238,7 @@ def test_build_failed_episode_result_uses_zero_scored_fallbacks():
     assert result["difficulty"] == "medium"
     assert result["episode_reward"] == 0.0
     assert result["raw_episode_reward"] == 0.0
-    assert result["task_grade"] == 0.0
+    assert result["task_grade"] == pytest.approx(inference_module.clamp_score(0.0))
     assert result["status"] == "failed"
     assert result["failure"]["stage"] == "make_decision"
     assert result["step_rewards"] == []
@@ -392,7 +392,7 @@ def test_summarize_task_prefers_task_grade_as_headline_metric():
 
 
 def test_run_task_evaluation_records_failed_episode_metadata():
-    """A failed scenario should be counted, surfaced, and zero-scored."""
+    """A failed scenario should be counted, surfaced, and low-scored."""
 
     class FailingAgent(FakeAgent):
         def make_decision(self, observation, difficulty):
@@ -411,7 +411,7 @@ def test_run_task_evaluation_records_failed_episode_metadata():
     assert summary["num_scenarios"] == 1
     assert summary["successful_scenarios"] == 0
     assert summary["failed_scenarios"] == 1
-    assert summary["average_task_grade"] == 0.0
+    assert summary["average_task_grade"] == pytest.approx(inference_module.clamp_score(0.0))
     assert summary["average_reward"] == 0.0
     assert summary["results"][0]["status"] == "failed"
     assert failure_details == [
@@ -771,7 +771,11 @@ def test_main_evaluation_summary_includes_failure_metadata(monkeypatch, capsys, 
             "difficulty": inference_module.TASK_TO_DIFFICULTY[task_id],
             "episode_reward": 1.0 if task_id != "context_dependent" else 0.0,
             "raw_episode_reward": 0.8 if task_id != "context_dependent" else 0.0,
-            "task_grade": 1.0 if task_id != "context_dependent" else 0.0,
+            "task_grade": (
+                inference_module.clamp_score(1.0)
+                if task_id != "context_dependent"
+                else inference_module.clamp_score(0.0)
+            ),
             "decision": "approve" if task_id != "context_dependent" else None,
             "confidence": 0.9 if task_id != "context_dependent" else None,
             "investigation_plan": [],
